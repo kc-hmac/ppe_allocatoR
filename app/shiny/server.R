@@ -2,7 +2,7 @@
 #' It is the same as example_02 in the RStudio Shiny Tutorial
 
 library(shiny)
-
+library('shinydashboard')
 server = function(input, output, session) {
 
   # IMPORTANT!
