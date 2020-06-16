@@ -57,6 +57,20 @@ server = function(input, output, session) {
     })
   })
   
+  #Hospital Data
+  output$hosp_o <- renderText({
+    req(input$hosp_go)
+    isolate({
+      if(is.null(cache$workdir)) return('Please load working directory options on the `Global Options tab` and try again')
+      mis_hosp = which(is.null(c(input$hosp_inv$datapath, input$hosp_covid$datapath)))
+      if(length(mis_hosp)>0){
+        return(paste0('Please provide valid information for: ', 
+                      paste0(c('Inventory', 'Covid')[mis_hosp], collapse = ', ')))
+      }
+      prep_hospital_data(cache$workdir, input$hosp_inv$datapath, input$hosp_covid$datapath)
+    })
+  })
+  
   
   
   
