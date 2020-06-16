@@ -27,13 +27,37 @@ server = function(input, output, session) {
   output$t_o <- renderText({
     req(input$ot_run, cache$workdir, input$cycle_date)
     isolate({
-      
       order_and_tiers(fold = cache$workdir, date = input$cycle_date, t1 = input$ot_t1$datapath,
                       t2 = input$ot_t2$datapath, order_v = input$ot_ver, load_from_previous = input$ot_use_prev,
                       prev_v = input$ot_prev_ver, previous_week = input$ot_prev_sum$datapath,
                       dump = input$ot_dump$datapath, add_fp = input$ot_add$datapath)
     })
   })
+  
+  #Create the item classifications file
+  output$ic_o <- renderText({
+    req(input$ic_old, input$ic_new, input$ic_go)
+    isolate({
+      if(is.null(cache$workdir)) return('Please load working directory options on the `Global Options tab` and try again')
+      prep_item_classifications(cache$workdir, input$cycle_date, input$ic_old$datapath, input$ic_new$datapath)
+    })
+  })
+  
+  #Create the inventory
+  output$inv_o <- renderText({
+    req(input$inv_go)
+    isolate({
+      if(is.null(cache$workdir)) return('Please load working directory options on the `Global Options tab` and try again')
+      mis_inv = which(is.null(c(input$inv_new, input$inv_new_ver, input$inv_old)))
+      if(length(mis_inv)>0){
+        return(paste0('Please provide valid information for: ', 
+                      paste0(c('Version', 'New Inventory', 'Old Inventory')[mis_inv], collapse = ', ')))
+      }
+      prep_inventory(cache$workdir, input$cycle_date, input$inv_old$datapath, input$inv_new$datapath, input$inv_new_ver)
+    })
+  })
+  
+  
   
   
 }

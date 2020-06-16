@@ -10,11 +10,13 @@ sidebar <- dashboardSidebar(
              menuSubItem('Orders & Tiers', tabName = 'ot'),
              menuSubItem('Hospital Data', tabName = 'hosp'),
              menuSubItem('Inventory', tabName = 'inv'),
-             menuSubItem('Item Classifications', tabName = 'itemclass')
+             menuSubItem('Item Classifications', tabName = 'itemclass'),
+             startExpanded = TRUE
              ),
     menuItem('Make Allocations',
              menuSubItem('Validate Inputs', tabName = 'valid'),
-             menuSubItem('Allocate', tabName = 'allocate')
+             menuSubItem('Allocate', tabName = 'allocate'),
+             startExpanded = TRUE
              )
   )
 )
@@ -38,9 +40,25 @@ body <- dashboardBody(
             fileInput('ot_add', 'Optional: additional orders'),
             actionButton('ot_run', 'Create order and tier sheets'),
             textOutput('t_o')),
-    tabItem(tabName = 'hosp', h2('Hospital Data')),
-    tabItem(tabName = 'inv', h2('Inventory')),
-    tabItem(tabName = 'itemclass', h2('Item Classifications')),
+    tabItem(tabName = 'hosp',
+            h2('Hospital Data'),
+            fileInput('hosp_inv','Hospital Inventory (select 1+)',multiple = TRUE), 
+            fileInput('hosp_covid', 'Hospital COVID counts'),
+            textInput('hosp_ver', 'Version'),
+            textOutput('hosp')),
+    tabItem(tabName = 'inv',
+            h2('Inventory'),
+            textInput('inv_new_ver', 'New Inventory Version', value = 1),
+            fileInput('inv_new', 'New Inventory Dataset'),
+            fileInput('inv_old', 'Old Inventory Classifications'),
+            actionButton('inv_go', 'Prepare inventory'),
+            textOutput('inv_o')),
+    tabItem(tabName = 'itemclass',
+            h2('Item Classifications'),
+            fileInput('ic_old', 'Existing Item Classifications'),
+            fileInput('ic_new', 'Orders for this cycle'),
+            actionButton('ic_go', 'Make new classifications sheet'),
+            textOutput('ic_o')),
     tabItem(tabName = 'valid', h2('Validate Inputs')),
     tabItem(tabName = 'allocate', h2('Run Allocations'))
   )
