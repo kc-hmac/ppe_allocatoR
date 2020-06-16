@@ -14,7 +14,8 @@ sidebar <- dashboardSidebar(
              startExpanded = TRUE
              ),
     menuItem('Make Allocations',
-             menuSubItem('Validate Inputs', tabName = 'valid'),
+             #menuSubItem('Validate Inputs', tabName = 'valid'),
+             menuSubItem('Other inputs', tabName = 'other_inputs'),
              menuSubItem('Allocate', tabName = 'allocate'),
              startExpanded = TRUE
              )
@@ -59,34 +60,29 @@ body <- dashboardBody(
             fileInput('ic_new', 'Orders for this cycle'),
             actionButton('ic_go', 'Make new classifications sheet'),
             textOutput('ic_o')),
+    tabItem(tabName = 'other_inputs',
+            h2('Other Inputs'),
+            fileInput('linelist', 'Linelist'),
+            fileInput('cw', 'Crosswalk'),
+            fileInput('replacements', 'Replacement Instructions'),
+            fileInput('acrciq', 'ACRC/IQ Occupancy'),
+            fileInput('chgs', 'PPE Changes by type')),
     tabItem(tabName = 'valid', h2('Validate Inputs')),
-    tabItem(tabName = 'allocate', h2('Run Allocations'))
+    tabItem(tabName = 'allocate',
+            h2('Run Allocations'),
+            textInput('cycle_v', 'Cycle Version', 1),
+            textInput('inv_v', 'Inventory Version',1),
+            textInput('runtiers', 'Tiers to run (semi-colon seperated list)', '0; 1; 2; 3; 1.5; 1.75'),
+            textInput('sized', 'Item types to distribute by size (semi-colon seperated list)',
+                      'non-latex gloves; scrub pants; scrub pants; latex gloves; N95; coveralls'),
+            textInput('ignore_me', 'Item types to not distribute (semi-colon seperated list)', ""),
+            numericInput('holdback_frac', 'Inventory Distribute %', 95, 0, 100),
+            textInput('hosp_thresh', 'Hospital Days of Supply Threshold', Inf),
+            actionButton('make_allocs', "Run Allocations"),
+            textOutput('alloc_response')
+            )
   )
 )
 
 ui = dashboardPage(header, sidebar, body)
 
-
-# ui = fluidPage(
-#   titlePanel("Example Shiny App"),
-#   sidebarLayout(
-# 
-#     sidebarPanel(
-#       selectInput(
-#         inputId = "dataset",
-#         label = "Choose a dataset",
-#         choices = c("rock", "pressure", "cars", "iris")),
-# 
-#       numericInput(
-#         inputId = "obs",
-#         label = "Number of observations to view:",
-#         value = 10)
-#     ),
-# 
-#     mainPanel(
-#       tags$div(sprintf("Global Variable Value: %s", GLOBAL_VAR)),
-#       verbatimTextOutput("dataSummary"),
-#       tableOutput("dataView")
-#     )
-#   )
-# )

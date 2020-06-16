@@ -8,3 +8,8 @@ library('readxl')
 
 dir2look = ifelse(basename(getwd()) == 'shiny', 'helpers/', './app/shiny/helpers/')
 for(fff in list.files(dir2look, full.names = TRUE)) source(fff) 
+
+dir2look = ifelse(basename(getwd()) == 'shiny', 'drake_functions/', './app/shiny/drake_functions/')
+for(fff in list.files(dir2look, full.names = TRUE)) source(fff)
+
+print(getwd())

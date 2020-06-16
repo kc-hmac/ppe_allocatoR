@@ -71,7 +71,19 @@ server = function(input, output, session) {
     })
   })
   
+  #for the other inputs tab, copy the files to the new folder
   
+  #run allocations
+  output$alloc_response <- renderText({
+    req(input$make_allocs)
+    
+    isolate({
+      
+      
+      
+      
+    })
+  })
   
   
 }
