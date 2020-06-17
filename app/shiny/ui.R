@@ -24,6 +24,7 @@ sidebar <- dashboardSidebar(
 body <- dashboardBody(
   tabItems(
     tabItem(tabName = 'go',
+            textOutput('wd'),
             h2("Global Options"),
             dateInput('cycle_date', label = 'Please input the cycle date', value = Sys.Date() - (wday(Sys.Date())+1) ),
             textInput('workdir', label = 'Please enter the base working directory path.', value = 'C:/Users/dcasey/Documents/test'),
@@ -66,7 +67,9 @@ body <- dashboardBody(
             fileInput('cw', 'Crosswalk'),
             fileInput('replacements', 'Replacement Instructions'),
             fileInput('acrciq', 'ACRC/IQ Occupancy'),
-            fileInput('chgs', 'PPE Changes by type')),
+            fileInput('chgs', 'PPE Changes by type'),
+            actionButton('oi_go', 'Upload/Transfer files'),
+            textOutput('oi_o')),
     tabItem(tabName = 'valid', h2('Validate Inputs')),
     tabItem(tabName = 'allocate',
             h2('Run Allocations'),

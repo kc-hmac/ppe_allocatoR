@@ -1,4 +1,3 @@
-print(getwd())
 source('./app/shiny/startup.R')
 # source('./app/shiny/ui.R')
 # source('./app/shiny/server.R')

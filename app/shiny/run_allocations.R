@@ -1,52 +1,4 @@
 
-
-hosp = file.path(base, paste0("hospital_", hosp_date, '.csv')) #inferred
-ltcf_categories = c('snf + alf', 'afh', 'supported living', 'alf', 'snf', 'ltcf')
-
-residents = "C:/Users/dcasey/ppe/ltcf/ltcf_long_list.xlsx" #templates
-cases = paste0("J:/dc_ll/Linelist_Facility_data_", ll_date, ".csv") #inferred
-cw = list.files('C:/Users/dcasey/ppe/ltcf/', pattern = 'DBID-DSHS', full.names = T) #inferred
-cw = cw[which(grepl(cw_date, cw))] #inferred
-stopifnot(length(cw)==1) #inferred
-beds = "C:/Users/dcasey/ppe/ltcf/ltcf_licensed_comprehensive.csv" #templates
-acrciq = file.path(base, "acrc_iq.xlsx") #inferred
-chgs = file.path(base, "type_chg.xlsx") #inferred
-
-sized_items = c('non-latex gloves', 'scrub pants', 'scrub pants', 'latex gloves', 'N95', 'coveralls') #input
-ignore_me = "" #input
-standardize_chinook_addresses = TRUE #input
-holdback_frac = .95 #input
-hosp_supply = Inf #28
-
-#Pull from cache
-for (fff in list.files('C:/Users/dcasey/Documents/code/ppe/drake_functions/', '\\.R$', full.names = T)) {
-  source(fff)
-}
-
-#fps
-fillable = file.path(output, paste0('asum_fillable', suffix,'.csv'))
-considered = file.path(output, paste0('asum_consider', suffix,'.csv'))
-allords = file.path(output, paste0('asum_all', suffix,'.csv'))
-lefts = file.path(output, paste0('leftovers', suffix,'.csv'))
-oot_excel = file.path(output, paste0('picklist', suffix,'.xlsx'))
-out_excel_by_tier = file.path(output, paste0('picklist', suffix,'_tier_', runtiers, '.xlsx'))
-oot_wide = file.path(output, paste0('picklist_wide', suffix,'.csv'))
-oot_dr = file.path(output, paste0('distribution_report', suffix,'.csv'))
-oot_no_1 = file.path(output, paste0('no_allocation_wanum', suffix,'.csv'))
-oot_no_2 = file.path(output, paste0('no_allocation_orders', suffix,'.csv'))
-oot_gowns = file.path(output, paste0('unfilled_gowns', suffix,'.csv'))
-oot_ltcf_1 = file.path(output, paste0('ltcf_allocations', suffix,'.csv'))
-oot_ltcf_2 = file.path(output, paste0('ltcf_allocations_sum', suffix,'.csv'))
-oot_ltcf_3 = file.path(output, paste0('ltcf_allocations_factype', suffix,'.csv'))
-oot_hosp_1 = file.path(output, paste0('hosp_allocations', suffix,'.csv'))
-oot_hosp_2 = file.path(output, paste0('hosp_allocations_sum', suffix,'.csv'))
-sum_cycle = file.path(output, paste0('sum_cycle_valid', suffix,'.csv'))
-#if the output file doesn't exist, create it.
-if (!dir.exists(file.path(cloc, '.drake')))
-  invisible(new_cache(path = file.path(cloc, '.drake')))
-
-cache = drake_cache(file.path(cloc, '.drake'))
-
 plan <- drake_plan(
 
   #check in user written functions
@@ -121,6 +73,6 @@ plan <- drake_plan(
   
 )
 
-a = drake_config(plan, cache_log_file = 'C:/Users/dcasey/Documents/code/ppe/cache_log.csv',
+a = drake_config(plan, cache_log_file = file.path(output,suffix,'log.csv'),
                  cache = cache)
 a

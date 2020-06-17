@@ -9,6 +9,8 @@ server = function(input, output, session) {
     stopApp()
   })
   
+  output$wd <- renderText(getwd())
+  
   cache = reactiveValues()
   
   #build the folder when the button is clicked
@@ -72,7 +74,20 @@ server = function(input, output, session) {
   })
   
   #for the other inputs tab, copy the files to the new folder
-  
+  output$oi_o <- renderText({
+    req(input$oi_go)
+    isolate({
+      if(is.null(cache$workdir)) return('Please load working directory options on the `Global Options tab` and try again')
+      mis_oi = which(is.null(c(input$linelist$datapath, input$cw$datapath, input$replacements$datapath, input$acrciq$datapath, input$chgs$datapath)))
+      if(length(mis_oi)>0){
+        return(paste0('Please provide valid information for: ', 
+                      paste0(c('linelist', 'crosswalk', 'replacement', 'acrciq', 'chgs')[mis_oi], collapse = ', ')))
+      }
+      copy_other_inputs(cache$workdir, input$linelist$datapath, input$cw$datapath,
+                        input$replacements$datapath, input$acrciq$datapath,
+                        input$chgs$datapath)
+    })
+  })
   #run allocations
   output$alloc_response <- renderText({
     req(input$make_allocs)
