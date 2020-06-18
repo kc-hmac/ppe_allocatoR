@@ -44,11 +44,8 @@ allocate_ppe_greedy = function(ord, subinv){
     tr = which(ord[, ord_id] %in% tr)
     
     subinv[, use_me :=1]
-    # if(ord[tr, type] == 'public health agency' & any(ord$item_type %in% 'N95')){
-    #   subinv = subinv[grepl('moldex', tolower(Item_long), fixed = T), use_me := 0]
-    #   subinv = subinv[grepl('ffp3', tolower(Item_long), fixed = T), use_me := 0]
-    #   subinv = subinv[grepl('cofra', tolower(Item_long), fixed = T), use_me := 0]
-    # }
+    
+    
 
     if(ord[tr, type] == 'ems' & any(ord$item_type %in% 'coveralls')){
       subinv = subinv[grepl('tyvek', tolower(Item_long), fixed = T), use_me := 0]

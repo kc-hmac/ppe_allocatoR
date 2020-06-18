@@ -35,6 +35,8 @@ load_inventory <- function(inv_fp, sized_items, prop_allocate = .95){
   
   inv[, ship_u := ceiling(ship_u * prop_allocate)]
   
+  setorder(inv, itemz, each_per_su, ship_u)
+  
   return(inv)
   
 }

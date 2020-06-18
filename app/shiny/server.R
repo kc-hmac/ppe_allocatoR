@@ -90,8 +90,9 @@ server = function(input, output, session) {
   })
   #run allocations
   output$alloc_response <- renderText({
-    req(input$make_allocs)
-    
+
+    if(req(input$make_allocs == 0)) return('Press button to run allocations')
+    if(is.null(cache$workdir)) return('Please load working directory options on the `Global Options tab` and try again') 
     isolate({
       
       run_allocations_drake(fold = cache$workdir,
@@ -110,7 +111,7 @@ server = function(input, output, session) {
       
       
     })
+
   })
-  
   
 }
