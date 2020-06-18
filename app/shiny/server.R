@@ -1,5 +1,4 @@
-print(getwd())
-source('startup.R')
+print('run server')
 server = function(input, output, session) {
   
   # IMPORTANT!
@@ -10,7 +9,8 @@ server = function(input, output, session) {
   })
   
   output$wd <- renderText(getwd())
-  
+  output$sesh_deets = renderText(print_and_capture(sessionInfo()))
+  output$Rhome = renderText(R.home())
   cache = reactiveValues()
   
   #build the folder when the button is clicked
@@ -94,7 +94,19 @@ server = function(input, output, session) {
     
     isolate({
       
+      run_allocations_drake(fold = cache$workdir,
+                            date = input$cycle_date,
+                            cycle_version = input$cycle_v,
+                            inventory_version = input$inv_v,
+                            ordersandtiers_version = input$ot_v,
+                            runtiers = input$runtiers,
+                            sized_items = input$sized,
+                            ignore_me = input$ignore_me,
+                            standardize_chinook = TRUE,
+                            holdback_frac = input$holdback_frac,
+                            hosp_supply = input$hosp_thresh)
       
+      'Complete'
       
       
     })

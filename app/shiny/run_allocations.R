@@ -1,8 +1,4 @@
-
 plan <- drake_plan(
-
-  #check in user written functions
-  funkys = compile_user_functions(),
 
   #load ppe and do initial tiering
   ppe = target(load_ppe_requests(file_in(!!orders), file_in(!!item_class), file_in(!!tiering), !!sized_items)),
@@ -75,4 +71,4 @@ plan <- drake_plan(
 
 a = drake_config(plan, cache_log_file = file.path(output,suffix,'log.csv'),
                  cache = cache)
-a
+#a

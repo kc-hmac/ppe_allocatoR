@@ -1,5 +1,7 @@
 #' This is an example shiny application
 #' It is the same as example_02 in the RStudio Shiny Tutorial
+print('run ui')
+source('./startup.R')
 header <- dashboardHeader(
   disable = T
 )
@@ -17,6 +19,7 @@ sidebar <- dashboardSidebar(
              #menuSubItem('Validate Inputs', tabName = 'valid'),
              menuSubItem('Other inputs', tabName = 'other_inputs'),
              menuSubItem('Allocate', tabName = 'allocate'),
+             menuSubItem('Session Info', tabName = 'sessionInfo'),
              startExpanded = TRUE
              )
   )
@@ -75,6 +78,7 @@ body <- dashboardBody(
             h2('Run Allocations'),
             textInput('cycle_v', 'Cycle Version', 1),
             textInput('inv_v', 'Inventory Version',1),
+            textInput('ot_v', 'Orders & Tiers Version', 1),
             textInput('runtiers', 'Tiers to run (semi-colon seperated list)', '0; 1; 2; 3; 1.5; 1.75'),
             textInput('sized', 'Item types to distribute by size (semi-colon seperated list)',
                       'non-latex gloves; scrub pants; scrub pants; latex gloves; N95; coveralls'),
@@ -83,7 +87,10 @@ body <- dashboardBody(
             textInput('hosp_thresh', 'Hospital Days of Supply Threshold', Inf),
             actionButton('make_allocs', "Run Allocations"),
             textOutput('alloc_response')
-            )
+            ),
+    tabItem(tabName = 'sessionInfo',
+            textOutput('sesh_deets'),
+            textOutput('Rhome'))
   )
 )
 
