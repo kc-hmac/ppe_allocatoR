@@ -67,6 +67,7 @@ run_allocations_drake <- function(
   considered = file.path(output, paste0('asum_consider', suffix,'.csv'))
   allords = file.path(output, paste0('asum_all', suffix,'.csv'))
   lefts = file.path(output, paste0('leftovers', suffix,'.csv'))
+  lefts_sum = file.path(output, paste0('leftovers_sum', suffix,'.csv'))
   oot_excel = file.path(output, paste0('picklist', suffix,'.xlsx'))
   out_excel_by_tier = file.path(output, paste0('picklist', suffix,'_tier_', runtiers, '.xlsx'))
   oot_wide = file.path(output, paste0('picklist_wide', suffix,'.csv'))

@@ -33,7 +33,9 @@ plan <- drake_plan(
 
   write_left = target(write.csv(leftovers, row.names = F,
                                 file_out(!!lefts))),
-
+  
+  left_sum = target(write.csv(summarize_leftovers(leftovers), row.names = F, file_out(!!lefts_sum))),
+  
   #construct full agency summary
   sum_full = target(agency_summary(allocations, type = 'all',
                                    outpath = file_out(!!allords),
