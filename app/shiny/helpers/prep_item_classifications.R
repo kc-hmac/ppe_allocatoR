@@ -5,7 +5,11 @@
 #' @param new file path to the new orders
 #' 
 prep_item_classifications = function(fold, date, old, new){
-  new = load_spreadsheet(new)
+  cycle_mo = month(date)
+  cycle_day = mday(date)
+  order_v = new
+  
+  new = load_spreadsheet(file.path(fold, paste0('order_list_', cycle_mo, cycle_day,'_', order_v, '.xlsx')))
   old = load_spreadsheet(old)
   
   old[, item := trimws(trimws(item, whitespace = "[\\h\\v]"))]
@@ -14,8 +18,7 @@ prep_item_classifications = function(fold, date, old, new){
   new = unique(new[, .(item)])
   new = rbind(old, new[!item %in% old[, item]], fill = T)
   
-  cycle_mo = month(date)
-  cycle_day = mday(date)
+ 
   
   out = file.path(fold, 'item_classifications.csv')
   

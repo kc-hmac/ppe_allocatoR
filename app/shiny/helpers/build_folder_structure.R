@@ -4,7 +4,7 @@
 #' 
 build_folder_structure = function(date, base_folder){
   
-  stopifnot('Directory does not exist' = dir.exists(base_folder))
+  stopifnot('Base working folder directory does not exist. Please create it or point to an existing folder' = dir.exists(base_folder))
 
   folder_name = paste0('distribute_',month(date),'-',mday(date),'-', year(date))
   

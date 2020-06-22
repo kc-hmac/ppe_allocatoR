@@ -15,3 +15,5 @@ dir2look = ifelse(basename(getwd()) == 'shiny', 'drake_functions/', './app/shiny
 for(fff in list.files(dir2look, full.names = TRUE)) source(fff)
 
 print(getwd())
+
+defaults = setDT(read.csv('../defaults.csv', stringsAsFactors = FALSE))

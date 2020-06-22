@@ -30,7 +30,7 @@ server = function(input, output, session) {
     req(input$ot_run, cache$workdir, input$cycle_date)
     isolate({
       order_and_tiers(fold = cache$workdir, date = input$cycle_date, t1 = input$ot_t1$datapath,
-                      t2 = input$ot_t2$datapath, order_v = input$ot_ver, load_from_previous = input$ot_use_prev,
+                      t2 = input$ot_t2$datapath, order_v = input$ot_ver, load_from_previous = (!is.null(input$ot_prev_ver) && !input$ot_prev_ver == ""),
                       prev_v = input$ot_prev_ver, previous_week = input$ot_prev_sum$datapath,
                       dump = input$ot_dump$datapath, add_fp = input$ot_add$datapath)
     })
@@ -41,7 +41,7 @@ server = function(input, output, session) {
     req(input$ic_old, input$ic_new, input$ic_go)
     isolate({
       if(is.null(cache$workdir)) return('Please load working directory options on the `Global Options tab` and try again')
-      prep_item_classifications(cache$workdir, input$cycle_date, input$ic_old$datapath, input$ic_new$datapath)
+      prep_item_classifications(cache$workdir, input$cycle_date, input$ic_old$datapath, input$ic_new)
     })
   })
   
@@ -90,11 +90,10 @@ server = function(input, output, session) {
   })
   #run allocations
   output$alloc_response <- renderText({
-
-    if(req(input$make_allocs == 0)) return('Press button to run allocations')
-    if(is.null(cache$workdir)) return('Please load working directory options on the `Global Options tab` and try again') 
+    
+    if(input$make_allocs == 0) return('Press button to run allocations')
     isolate({
-      
+      if(is.null(cache$workdir)) return('Please load working directory options on the `Global Options tab`') 
       run_allocations_drake(fold = cache$workdir,
                             date = input$cycle_date,
                             cycle_version = input$cycle_v,
