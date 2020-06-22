@@ -1,4 +1,6 @@
-copy_other_inputs <- function(fold, linelist, crosswalk, replace, acrciq, chgs){
+copy_other_inputs <- function(fold, linelist, crosswalk, replace, acrciq, chgs, cache_folder){
+  stopifnot('cache folder does not exist' = dir.exists('cache_folder'))
+  
   file.copy(crosswalk, file.path(fold, paste0('crosswalk.', file_ext(crosswalk))))
   file.copy(replace, file.path(fold, paste0('replacements.', file_ext(replace))))
   file.copy(acrciq, file.path(fold, paste0('acrciq.', file_ext(acrciq))))
@@ -11,7 +13,10 @@ copy_other_inputs <- function(fold, linelist, crosswalk, replace, acrciq, chgs){
   
   write.csv(linelist, row.names = F, file.path(fold, 'linelist.csv'))
   
-  return('Files copied/stored')
+  
+  write.csv(data.frame(cache_folder_path = cache_folder), row.names = F, file.path(fold, 'cache_loc.csv'))
+  
+  return('Updates & Uploads complete')
   
   
 }

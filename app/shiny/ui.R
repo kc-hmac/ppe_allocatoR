@@ -73,7 +73,7 @@ body <- dashboardBody(
             fileInput('replacements', 'Replacement Instructions'),
             fileInput('acrciq', 'ACRC/IQ Occupancy'),
             fileInput('chgs', 'PPE Changes by type'),
-            actionButton('oi_go', 'Upload/Transfer files'),
+            actionButton('oi_go', 'Update/Upload'),
             textOutput('oi_o')),
     tabItem(tabName = 'valid', h2('Validate Inputs')),
     tabItem(tabName = 'allocate',

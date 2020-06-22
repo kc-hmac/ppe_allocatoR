@@ -35,12 +35,13 @@ run_allocations_drake <- function(
   output = file.path(fold, suffix)
   
   #construct cache
-  dir.create(file.path(output, suffix))
+  cache_dir = read.csv(file.path(output, 'cache_loc.csv'), stringsAsFactors = FALSE)
+  dir.create(file.path(cache_dir$cache_folder_path, suffix))
   
-  if (!dir.exists(file.path(output, suffix, '.drake')))
-    invisible(new_cache(path = file.path(output, suffix, '.drake')))
+  if (!dir.exists(file.path(cache_dir$cache_folder_path, suffix, '.drake')))
+    invisible(new_cache(path = file.path(cache_dir$cache_folder_path, suffix, '.drake')))
   
-  cache = drake_cache(file.path(output, suffix, '.drake'))
+  cache = drake_cache(file.path(cache_dir$cache_folder_path, suffix, '.drake'))
   
   #governing variables
   ltcf_categories = c('snf + alf', 'afh', 'supported living', 'alf', 'snf', 'ltcf')

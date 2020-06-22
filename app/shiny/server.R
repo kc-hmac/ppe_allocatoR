@@ -85,7 +85,7 @@ server = function(input, output, session) {
       }
       copy_other_inputs(cache$workdir, input$linelist$datapath, input$cw$datapath,
                         input$replacements$datapath, input$acrciq$datapath,
-                        input$chgs$datapath)
+                        input$chgs$datapath, input$cache_folder)
     })
   })
   #run allocations
