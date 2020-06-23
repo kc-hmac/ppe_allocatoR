@@ -1,3 +1,15 @@
+#' Manages and excutes the drake process
+#' @param fold directory path- working folder
+#' @param date cycle date
+#' @param cycle_version numeric/character- version of the cyle. Usually increments up from 1. Failing to use a new value can result in files being overwritten (which is sometimes desirable)
+#' @param inventory_version numeric/character- version of the inventory to use for this run
+#' @param ordersandtiers_version numeric/character- version of the orders and tiers files to use
+#' @param runtiers character as a `;` separated list- Which tiers (as found in the tiers file column current.tier) should be run? Note, tiers are run from lowest to highest in a dependent-iterative fashion.
+#' @param sized_items character as a `;` separated list- item_type(s) that should be allocated by size
+#' @param ignore_me character as a `;` separated list- item_type(s) that should not be allocated at all
+#' @param standardize_chinook logical- should all addresses that are likely going to chinook to be standardized (e.g. sent to the first floor)
+#' @param holdback_frac numeric value between 0 and 100. Signifies the percent of supplies of any given item that can be allocated.
+#' @param hosp_supply numeric value. Number of days of supply a hospital must have less than to be eligible for a shipment. Is calculated per item type.
 run_allocations_drake <- function(
                       fold, 
                       date,
@@ -6,10 +18,10 @@ run_allocations_drake <- function(
                       ordersandtiers_version,
                       runtiers,
                       sized_items,
-                      ignore_me,
-                      standardize_chinook,
-                      holdback_frac,
-                      hosp_supply){
+                      ignore_me = "",
+                      standardize_chinook = T,
+                      holdback_frac = 95,
+                      hosp_supply = Inf){
   
   #fix some inputs
   runtiers = trimws(unlist(strsplit(runtiers, ';', fixed = TRUE)))

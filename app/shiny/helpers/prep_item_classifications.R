@@ -3,7 +3,7 @@
 #' @param date date of the cycle
 #' @param old file path to the old classification list
 #' @param new file path to the new orders
-#' 
+#' @return file path to the resulting item classifications file
 prep_item_classifications = function(fold, date, old, new){
   cycle_mo = month(date)
   cycle_day = mday(date)

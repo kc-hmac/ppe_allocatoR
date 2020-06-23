@@ -1,9 +1,18 @@
+#' Convert the inventory report from maximo/warehouse to a format usable for analysis
+#' @param fold directory path- Location of the working directory
+#' @param date date- Date of the cycle
+#' @param old file path- Location of the previous inventory. Classifications will be carried forward
+#' @param new file path- Location of the current inventory (without the metadata)
+#' @param version character/numeric - Version identifier for the resulting files. Choosing an existing inventory version will cause an overwrite
+#' @return file path to the saved inventory file
 prep_inventory = function(fold, date, old, new, version){
   cycle_mo = month(date)
   cycle_day = mday(date)
   
   old = load_spreadsheet(old)
   
+  #The inventory generally comes in two ways-- the xml pretending to be xls from the raw extract or as an actual xls file
+  #because there are two different main approachs, the following code tries to figure out how to read/format them the same
   #try reading as an xml
   hold = try(read_xml(new), silent = TRUE)
   if(!inherits(hold, 'try-error')){
