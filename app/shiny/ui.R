@@ -29,7 +29,7 @@ sidebar <- dashboardSidebar(
 body <- dashboardBody(
   tabItems(
     tabItem(tabName = 'go',
-            textOutput('wd'),
+            #textOutput('wd'),
             h2("Global Options"),
             dateInput('cycle_date', label = 'Please input the cycle date', value = Sys.Date() - (wday(Sys.Date())+1) ),
             textInput('workdir', label = 'Please enter the base working directory path.', value = defaults[variable == 'base_output', value]),

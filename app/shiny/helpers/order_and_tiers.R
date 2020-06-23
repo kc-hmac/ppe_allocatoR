@@ -1,7 +1,19 @@
-#largely based of dist_helpers/prep_order_sheet.R
+#' Prepare a new set of order and tiers sheets
+#' @param fold file.path- path to the directory of the working folder (e.g. where outputs get saved)
+#' @param date date- the date (usually derived from \code{\link{Sys.Date()}}) representing the closing day of the cycle. Usually this is the Friday the week before.
+#' @param t1 file.path- path to the excel/csv file containing the tier 1 requests. This comes from Logs.
+#' @param t2 file.path- path to the excel/csv file contining the tier 2+ requests. This comes from Logs
+#' @param order_v numeric/character- new version name
+#' @param load_from_previous logical. Determines whether previous tiering information (from the same date cycle) should be carried forward to a new version of the tiers and orders
+#' @param prev_v numeric/character- old version name
+#' @param previous_week file.path- Path to the location of the previous week's "asum_all" file for comparing old vs. new tracking numbers to ensure no duplication
+#' @param dump file.path- Path to the location of a data dump from webeoc. This sheet brings the contact information.
+#' @param add_fp file.path- Optional. Path to the location of an excel/csv sheet specifying additional orders
+#' @details This function creates blank/new versions of the order and tiers files. Unless provided a new order_v, this function will overwrite existing work.
+#' @return A character string of the file path to the saved tiers file.
 order_and_tiers = function(fold, date, t1, t2, order_v, load_from_previous, prev_v,
                            previous_week, dump, add_fp){
-  
+  #Prepare date/cycle information
   cycle_mo = month(date)
   cycle_day = mday(date)
   
@@ -41,12 +53,15 @@ order_and_tiers = function(fold, date, t1, t2, order_v, load_from_previous, prev
   dump[, address := gsub('\t', "", address, fixed = T)]
   dump = unique(dump)
   
-  stopifnot('Wa nums in orders missing from dump' = all(unique(orders[, wa_num]) %in% dump[, wa_num]))
-  
+  if(!all(unique(orders[, wa_num]) %in% dump[, wa_num])){
+    misnums = setdiff(unique(orders[, wa_num]), dump[,wa_num])
+    stop(paste0('The following wa nums are missing from the data dump: ', paste(misnums, collapse = ', ')))
+  }
+
   dump = dump[wa_num %in% orders[, wa_num]]
   
   #For reasons I can't fathom, webeoc allows multiple discrete requests to have the same tracking number.
-  #The next several lines check for that and use a few hueristics to determine whether that is a problem
+  #The next several lines check for that and use a few heuristics to determine whether that is a problem
   multi_dump = dump[, .N, wa_num][N>1]
   
   if(nrow(multi_dump)>0){
@@ -86,7 +101,7 @@ order_and_tiers = function(fold, date, t1, t2, order_v, load_from_previous, prev
                            notes = "", current.tier = "", priority = "", logs_lnum = lnum, logs_type, logs_tier)])
     
     if(load_from_previous){
-      old = load_spreadsheet(paste0(fold, 'tiers_', cycle_mo, cycle_day, '_', prev_v, '.xlsx'))
+      old = load_spreadsheet(file.path(fold, paste0('tiers_', cycle_mo, cycle_day, '_', prev_v, '.xlsx')))
       
       ttt = rbind(old, ttt[!wa_num %in% old[, wa_num]])
     }

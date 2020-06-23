@@ -8,12 +8,14 @@ library('xml2')
 library('readxl')
 library('drake')
 
+
+print(getwd())
+
 dir2look = ifelse(basename(getwd()) == 'shiny', 'helpers/', './app/shiny/helpers/')
 for(fff in list.files(dir2look, full.names = TRUE)) source(fff) 
 
 dir2look = ifelse(basename(getwd()) == 'shiny', 'drake_functions/', './app/shiny/drake_functions/')
 for(fff in list.files(dir2look, full.names = TRUE)) source(fff)
 
-print(getwd())
-
-defaults = setDT(read.csv('../defaults.csv', stringsAsFactors = FALSE))
+dir2look = ifelse(basename(getwd()) == 'shiny', '../', './app')
+defaults = setDT(read.csv(file.path(dir2look, 'defaults.csv'), stringsAsFactors = FALSE))
