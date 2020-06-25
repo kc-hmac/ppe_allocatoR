@@ -11,18 +11,12 @@
 #' 
 
 # ppe = readd(ppe, cache = cache)
-# ltcf_categories = c('snf + alf', 'afh', 'supported living', 'alf', 'snf')
-# residents = "C:/Users/dcasey/OneDrive - King County/covid/PPE disbursement/ltcf/ltcf_long_list.xlsx"
-# cases = "J:/dc_ll/Facility_Linelist_data_430.csv"
-# cw = "C:/Users/dcasey/OneDrive - King County/covid/PPE disbursement/ltcf/cddb_iddb_crosswalk_4_30.csv"
-# beds = "C:/Users/dcasey/ppe/ltcf/ltcf_licensed_comprehensive.csv"
-# ppe = readd(ppe, cache = cache)
 load_ltcf_data <- function(ppe, ltcf_categories, residents, beds, cases, cw){
   
   #load things
   residents = fix_ltcf_lnums(load_spreadsheet(residents), 'License.number', 'Facility.Name')
   cases_ltcf = load_spreadsheet(cases)
-  cw = fix_ltcf_lnums(load_spreadsheet(cw), 'license_dshs', 'FacilityName')
+  cw = fix_ltcf_lnums(load_spreadsheet(cw), 'LicenseNumber', 'FacilityName')
   beds = fix_ltcf_lnums(load_spreadsheet(beds), 'LicenseNumber', 'FacilityName')
   
   #fix up the beds file
@@ -53,7 +47,7 @@ load_ltcf_data <- function(ppe, ltcf_categories, residents, beds, cases, cw){
     
     residents[lnum %in% nums, agency := ag]
     beds[lnum %in% nums, agency := ag]
-    cases_ltcf[license_dshs %in% nums, agency := ag]
+    cases_ltcf[LicenseNumber %in% nums, agency := ag]
     
   }
   
@@ -79,6 +73,12 @@ load_ltcf_data <- function(ppe, ltcf_categories, residents, beds, cases, cw){
     residents[is.na(wt), wt := nbeds]
     residents[wt %in% 0, wt := nbeds]
     residents[is.na(wt) & type == 'Adult Family Home', wt := 5]
+    
+    if(!all(!is.na(residents[, wt]))){
+      stop(paste('The following agencies have an NA weight (either beds or resident counts are NA):',
+                 paste0(residents[is.na(wt), agency], collapse = ', ')))
+    }
+    
     stopifnot(all(!is.na(residents[, wt])))
     stopifnot(all(residents[,wt>0]))
     

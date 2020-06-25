@@ -7,7 +7,7 @@
 #' @param chgs file path- location of the number of PPE changes per tier 1 category
 #' @param cache_folder file path- location of where the drake cache should be created (as a subfolder)
 copy_other_inputs <- function(fold, linelist, crosswalk, replace, acrciq, chgs, cache_folder){
-  stopifnot('cache folder does not exist' = dir.exists('cache_folder'))
+  stopifnot('cache folder does not exist' = dir.exists(cache_folder))
   
   #Copy and standardize naming for misc files
   file.copy(crosswalk, file.path(fold, paste0('crosswalk.', file_ext(crosswalk))))
@@ -17,8 +17,10 @@ copy_other_inputs <- function(fold, linelist, crosswalk, replace, acrciq, chgs, 
   
   #the line list can sometimes have sensitive data so this to reduce the chance of data leakage
   linelist = load_spreadsheet(linelist)
-  linelist = linelist[, .(DBID, `Res Cnt Death`, `Res Cnt Hsp`,
-                 `Res Cnt Sym`, `Res Test Pos`,`Classification Value`)]
+  setnames(linelist, tolower(names(linelist)))
+  linelist = linelist[, .(dbid, `res cnt death`, `res cnt hsp`,
+                 `res cnt sym`, `res test pos`,`classification value`)]
+  setnames(linelist, c('DBID', 'Res Cnt Death', 'Res Cnt Hsp', 'Res Cnt Sym', 'Res Test Pos', 'Classification Value'))
   
   write.csv(linelist, row.names = F, file.path(fold, 'linelist.csv'))
   

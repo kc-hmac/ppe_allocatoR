@@ -87,6 +87,10 @@ order_and_tiers = function(fold, date, t1, t2, order_v, load_from_previous, prev
   }
   
   
+  #remove stupid characters from item names
+  orders[, item_requested := gsub('"', "", item_requested, fixed = T)]
+  
+  
   #create tiering file
   tiers = orders[, .(wa_num, agency, address, lnum = `_lnum`, type = "",
                      newname = "", notes = "", current.tier = "",

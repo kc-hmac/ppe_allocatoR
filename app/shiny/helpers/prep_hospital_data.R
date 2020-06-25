@@ -22,6 +22,9 @@ prep_hospital_data = function(fold, ppe, covid){
   stopifnot('Missing days' = all(!is.na(ppe_hosp[,days])))
   stopifnot('Missing item classifications' = all(!is.na(ppe_hosp[,item_type])))
   
+  #keep the latest entry
+  ppe_hosp = ppe_hosp[ppe_hosp[, .I[which.max(`Created On Date only`)], by = .(name = `'Supply Entry'[Facility]`, item_type)]$V1]
+  
   #collapse and create a UW w/o Valley medical row because of UW reasons
   ppe_hosp = ppe_hosp[, .(days = min(days, na.rm = T)), by = .(name = `'Supply Entry'[Facility]`, item_type)]
   uw = ppe_hosp[grepl('UW Medicine', name, fixed = T) & !grepl("Valley", name), .(days = min(days, na.rm = T)), by = 'item_type']
@@ -29,7 +32,8 @@ prep_hospital_data = function(fold, ppe, covid){
   ppe_hosp = rbind(ppe_hosp, uw)
   
   #covid per hospital
-  covid_hosp = covid_hosp[, .(name = `Facility Name`, covid = `COVID positive` + `COVID suspected`)]
+  covid_hosp = covid_hosp[covid_hosp[, .I[which.max(`Created On`)], by = Facility]$V1,]
+  covid_hosp = covid_hosp[, .(name = `Facility`, covid = `Sum of COVID PUI` + `COVID Confirmed`)]
   
   #collapse to UW medicine
   uw = covid_hosp[grepl('UW Medicine', name, fixed = T) & !grepl("Valley", name), .(covid = sum(covid))]

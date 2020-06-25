@@ -29,11 +29,7 @@ load_ppe_requests = function(orders, item_class, tiering, sized_items, ad_only =
   ppe = ppe[!is.na(item_requested)]
   
   ppe[, item_requested := trimws(item_requested, whitespace = "[\\h\\v]")]
-  
-  ppe[, item_requested := gsub('"', "", item_requested)]
-  
-  items[, og := item_requested]
-  items[, item_requested := gsub('"', "", item_requested)]
+
   items = unique(items)
   
   item_maps = items[, .N, item_requested]

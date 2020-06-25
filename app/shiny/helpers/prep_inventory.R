@@ -63,7 +63,7 @@ prep_inventory = function(fold, date, old, new, version){
   }
   new = copy(dt)
   
-  new = merge(new, old[, .(each_per_su, item_type, size, Item)], all.x = T, by = 'Item')
+  new = merge(new, old[, .(each_per_su, item_type, size, Item, Description)], all.x = T, by = c('Item', 'Description'))
   new[, ship_u := `Qty Avbl`]
   
   write.csv(new, file.path(fold, 'inv', paste0('inventory_',cycle_mo, cycle_day, '_', version,'.csv')), row.names = F, na = "")

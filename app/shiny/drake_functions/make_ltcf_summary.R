@@ -19,7 +19,7 @@ make_ltcf_summary = function(asum, ltcflist, oot1, oot2, oot3){
   lnum_ids = lnum_ids[!is.na(value)]
   lnum_ids = merge(lnum_ids, ltcflist[, .(License.number, Provider.Type)], by.x = 'value', by.y = 'License.number', all.x = T)
   
-  stopifnot(all(!is.na(lnum_ids[, Provider.Type])))
+  stopifnot('License id likely not found in the long list-- check for types' = all(!is.na(lnum_ids[, Provider.Type])))
   
   lnum_ids = unique(lnum_ids[, .(lnum, ltcf_type = Provider.Type)])
   setorder(lnum_ids, ltcf_type)
@@ -29,6 +29,7 @@ make_ltcf_summary = function(asum, ltcflist, oot1, oot2, oot3){
   asum = merge(asum, lnum_ids, all.x = T, by = 'lnum')
   stopifnot('Probably duplicate ids' = st == nrow(asum))
   
+  asum[, type := ltcf_type]
   
   #collapse by item type
   itsum = asum[, .(requested = sum(requested), allocated = sum(allocated), type = 'All LTCFs'), by = item_type]
@@ -37,7 +38,6 @@ make_ltcf_summary = function(asum, ltcflist, oot1, oot2, oot3){
   itsum[, `percent filled` := round(allocated/requested * 100)]
   
   count_facility = unique(asum[, .(agency, type)])[, .N, type]
-  
   
   write.csv(asum[, .(order_ids, agency, type, item_type, size, tier, fill_me, requested, allocated)], file = oot1, row.names = F)
   write.csv(itsum, file = oot2, row.names = F)

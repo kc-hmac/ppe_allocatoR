@@ -45,9 +45,10 @@ run_allocations_drake <- function(
   ot_v = ordersandtiers_version
   suffix = paste0('_', cycle_mo,cycle_day,'_v', cycle_v)
   output = file.path(fold, suffix)
+  dir.create(output)
   
   #construct cache
-  cache_dir = read.csv(file.path(output, 'cache_loc.csv'), stringsAsFactors = FALSE)
+  cache_dir = read.csv(file.path(fold, 'cache_loc.csv'), stringsAsFactors = FALSE)
   dir.create(file.path(cache_dir$cache_folder_path, suffix))
   
   if (!dir.exists(file.path(cache_dir$cache_folder_path, suffix, '.drake')))
@@ -167,6 +168,6 @@ run_allocations_drake <- function(
     
   )
   
-  make(plan)
+  make(plan, cache = cache)
   
 }

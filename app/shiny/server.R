@@ -93,7 +93,12 @@ server = function(input, output, session) {
     
     if(input$make_allocs == 0) return('Press button to run allocations')
     isolate({
-      if(is.null(cache$workdir)) return('Please load working directory options on the `Global Options tab`') 
+      if(is.null(cache$workdir)) return('Please load working directory options on the `Global Options tab`')
+      
+      #save the things so its easier to debug
+      hold_cache = reactiveValuesToList(cache)
+      hold_input = reactiveValuesToList(input)
+      save(hold_cache, hold_input, file = file.path(cache$workdir, 'most_recent_inputs.Rdata'))
       run_allocations_drake(fold = cache$workdir,
                             date = input$cycle_date,
                             cycle_version = input$cycle_v,
