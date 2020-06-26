@@ -25,7 +25,7 @@ order_and_tiers = function(fold, date, t1, t2, order_v, load_from_previous, prev
   if(!missing(add_fp) && !is.null(add_fp)) add = load_spreadsheet(add_fp)
   
   
-  stopifnot(all(names(t1) == names(t2)))
+  stopifnot(all(names(t2) %in% names(t1)))
   
   orders = rbind(t1, t2, fill = T)
   
@@ -120,7 +120,7 @@ order_and_tiers = function(fold, date, t1, t2, order_v, load_from_previous, prev
     write.xlsx(ttt, file.path(fold, paste0('tiers_', cycle_mo, cycle_day, '_', order_v, '.xlsx')))
     write.csv(ttt, file.path(fold, paste0('tiers_raw.csv')), row.names = F, na = "")
     
-    if(length(dupes)>1) warning(paste0(dupes, collapse = ', '))
+    if(length(dupes)>1) warning(paste('IDs also from next week:', paste0(dupes, collapse = ', ')))
     
   }
   
