@@ -1,1 +1,1 @@
-wscript dist\script\wsf\run.wsf
+"dist\\R-Portable\\App\\R-Portable\\bin\\Rscript.exe" --vanilla "dist/script/R/run.R" 1> log\\error.log 2>&1
