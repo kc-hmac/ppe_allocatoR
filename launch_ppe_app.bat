@@ -1,1 +1,1 @@
-Wscript "launch_helper.vbs" "ppe_app.bat"
+Wscript "runners\\launch_helper.vbs" "runners\\ppe_app.bat"

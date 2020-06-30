@@ -91,10 +91,11 @@ allocate_ppe_spray = function(ord, subinv){
         break
       }
       remain = ord[ord_id %in% ooo, assigned - allocated]
-      this = subinv[items_left > 0, ][, abs(remain - each_per_su)]
-      
-      #randomly select an item that'll get closest to getting the target
-      this = sample(subinv[items_left > 0, ][abs(remain - each_per_su) == min(this), item_id],size = 1)
+      # this = subinv[items_left > 0, ][, abs(remain - each_per_su)]
+      # #randomly select an item that'll get closest to getting the target
+      # this = sample(subinv[items_left > 0, ][abs(remain - each_per_su) == min(this), item_id],size = 1)
+      this = subinv[items_left > 0, ][which.min(abs(remain - each_per_su)), item_id]
+      this = which(subinv[, item_id] %in% this)
       
       ord[ord_id %in% ooo, allocated := subinv[item_id %in% this, each_per_su] + allocated]
       ord[ord_id %in% ooo, (subinv[item_id %in% this, Item_long]) :=  get(subinv[item_id %in% this, Item_long]) + 1]

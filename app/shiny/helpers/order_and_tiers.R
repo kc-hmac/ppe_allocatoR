@@ -70,7 +70,8 @@ order_and_tiers = function(fold, date, t1, t2, order_v, load_from_previous, prev
     
     md_2 = dump[, .N, wa_num][N>1]
     if(nrow(md_2) > 0){
-      stop(paste0('Error: tracking numbers (wa_num) are not unique per request: ', paste0(md_2[, wa_num], collapse = ', ')))
+      stop(paste0('Error: tracking numbers (wa_num) are not unique per request: ', paste0(md_2[, wa_num], collapse = ', '),'.',
+                  'This usually means WebEOC has assigned the same id to two different requests. Best way to fix this is to get logs to create a new entry and then replace the underlying data and rerun.'))
     }else{
       warning(paste0('WA nums were not unique to a request, but filtering on status made them unique. Worth double checking: ', paste0(multi_dump[, wa_num], collapse = ', ') ))
     }
@@ -103,6 +104,8 @@ order_and_tiers = function(fold, date, t1, t2, order_v, load_from_previous, prev
     
     ttt = unique(tiers[ ,.(wa_num, agency, address, lnum = lnum, type = "", newname = "", 
                            notes = "", current.tier = "", priority = "", logs_lnum = lnum, logs_type, logs_tier)])
+    
+    ttt[,lnum := gsub('/', ', ', lnum, fixed = T)]
     
     if(load_from_previous){
       old = load_spreadsheet(file.path(fold, paste0('tiers_', cycle_mo, cycle_day, '_', prev_v, '.xlsx')))
