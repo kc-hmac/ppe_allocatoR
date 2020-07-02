@@ -1,6 +1,6 @@
 # loadd(orders, inv, wt, cache = cache)
 # w = copy(wt)
-assign_and_allocate <- function(orders, inv, w, ltcf_categories, replacement_file = ""){
+assign_and_allocate <- function(orders, inv, w, ltcf_categories, replacement_file = "", donotallocate){
 
   #what tiers are we working with?
   looptiers = sort(unique(orders[,tier]))
@@ -11,6 +11,10 @@ assign_and_allocate <- function(orders, inv, w, ltcf_categories, replacement_fil
   
   #orders = orders[item_type %in% 'sanitizer, hand- bulk']
   orders = orders[type %in% ltcf_categories, type := 'ltcf']
+  
+  donotallocate = load_spreadsheet(donotallocate)
+  
+  mis_agencies = setdiff(donotallocate[, agency], orders[, agency])
   
   for(ttt in looptiers){
     for(ppp in sort(unique(orders[tier == ttt, priority]), na.last = T)){
@@ -24,11 +28,12 @@ assign_and_allocate <- function(orders, inv, w, ltcf_categories, replacement_fil
                    function(x) assign_ppe(x, valid, w, inv_each))
       
       if(ttt %in% c(1, 1.5)){
-        alloc = lapply(ass, function(x) allocate_ppe(x, inv, 'greedy'))
+        amethod = 'greedy'
        
       }else{
-        alloc = lapply(ass, function(x) allocate_ppe(x, inv, 'spray'))
+        amethod = 'spray'
       }
+      alloc = lapply(ass, function(x) allocate_ppe(x, inv, amethod, dnas = donotallocate))
       
       #draw down the inventory
       inv = drawdown_inv(alloc, inv)

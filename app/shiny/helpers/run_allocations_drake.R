@@ -22,7 +22,10 @@ run_allocations_drake <- function(
                       standardize_chinook = T,
                       holdback_frac = 95,
                       hosp_supply = Inf,
-                      n95except = ""){
+                      n95except = "",
+                      cache_loc){
+  
+  stopifnot('Parent folder for drake cache does not exist' = !missing(cache_loc) && dir.exists(cache_loc))
   
   #fix some inputs
   runtiers = trimws(unlist(strsplit(runtiers, ';', fixed = TRUE)))
@@ -50,13 +53,12 @@ run_allocations_drake <- function(
   dir.create(output)
   
   #construct cache
-  cache_dir = read.csv(file.path(fold, 'cache_loc.csv'), stringsAsFactors = FALSE)
-  dir.create(file.path(cache_dir$cache_folder_path, suffix))
+  dir.create(file.path(cache_loc, suffix))
   
-  if (!dir.exists(file.path(cache_dir$cache_folder_path, suffix, '.drake')))
-    invisible(new_cache(path = file.path(cache_dir$cache_folder_path, suffix, '.drake')))
+  if (!dir.exists(file.path(cache_loc, suffix, '.drake')))
+    invisible(new_cache(path = file.path(cache_loc, suffix, '.drake')))
   
-  cache = drake_cache(file.path(cache_dir$cache_folder_path, suffix, '.drake'))
+  cache = drake_cache(file.path(cache_loc, suffix, '.drake'))
   
   #governing variables
   ltcf_categories = c('snf + alf', 'afh', 'supported living', 'alf', 'snf', 'ltcf')
@@ -76,7 +78,10 @@ run_allocations_drake <- function(
   acrciq <- file.path(fold, 'acrciq.xlsx')
   if(!file.exists(acrciq)) acrciq <- file.path(fold, 'acrciq.csv')
   chgs <- file.path(fold, 'chgs.xlsx')
-  if(!file.exists(acrciq)) chgs <- file.path(fold, 'chgs.csv')
+  if(!file.exists(chgs)) chgs <- file.path(fold, 'chgs.csv')
+  
+  donotallocate <- file.path(fold, 'donotallocate.xlsx')
+  if(!file.exists(donotallocate)) donotallocate <- file.path(fold, 'donotallocate.csv')
   
   #Outputs
   fillable = file.path(output, paste0('asum_fillable', suffix,'.csv'))
@@ -127,7 +132,7 @@ run_allocations_drake <- function(
     mismatch = target(order_filler(ppe, inv, ltcf, hospital, !!runtiers, ignore_items = !!ignore_me, inv_mismatch =  TRUE)),
     
     #allocate and assign
-    allocations = target(assign_and_allocate(orders, inv, wt,ltcf_categories = !!ltcf_categories, !!replacement_file)),
+    allocations = target(assign_and_allocate(orders, inv, wt,ltcf_categories = !!ltcf_categories, file_in(!!replacement_file), file_in(!!donotallocate))),
     
     #confirm allocations don't overallocate and create leftovers summary
     leftovers = target(find_leftovers(inv, allocations)),

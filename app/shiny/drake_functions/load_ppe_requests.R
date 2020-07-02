@@ -86,14 +86,6 @@ load_ppe_requests = function(orders, item_class, tiering, sized_items, ad_only =
   
   stopifnot(all(unique(ppe[, .(agency, wa_num)])[, .N, .(agency, wa_num)][, N==1]))
   
-  #for public health agencies, the type of N95s matter
-  #handled via sizing and order filler now
-  #ppe[type %in% 'public health agency' & grepl('N95 SM 1860',  item_requested, fixed = T), size := 'N95 SM 1860']
-  
-  #do something with ltcfs and subtypes here given that a license number is only unique on type + number
-  ppe[type == 'behavioral hospital', type := 'hospital']
-  ppe[type %in% 'acrc', type := 'alternate care facility']
-  
   ppe[, order_ids := paste(unique(wa_num), collapse = ', '), 
       by = .(type, current.tier, agency)]
   
@@ -112,7 +104,7 @@ load_ppe_requests = function(orders, item_class, tiering, sized_items, ad_only =
   
   ppe[lnum == '9999999', lnum := NA]
   
-  ppe[type %in% c('alternate care facility', 'iq'), type := 'acrc/iq']
+  ppe[type %in% c('alternate care facility', 'iq', 'acrc'), type := 'acrc/iq']
   
   ppe[, ppe_id := .I]
   

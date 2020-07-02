@@ -14,3 +14,5 @@ ignore_me = input$ignore_me
 standardize_chinook = TRUE
 holdback_frac = input$holdback_frac
 hosp_supply = input$hosp_thresh
+n95except = input$n95except
+cache_loc =input$cache_folder

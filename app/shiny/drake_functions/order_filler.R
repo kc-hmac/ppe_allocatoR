@@ -58,9 +58,6 @@ order_filler = function(ppe, inv, ltcf, hospital, thetiers, ignore_items = "", i
   
   ppe[itemz %in% req_no_inv, fill_me := -1]
   
-  #MAT has very specific N95 requests
-  ppe[agency %in% 'PHSKC - MAT' & item_type %in% 'N95' & size %in% c('s','r'), fill_me := 0]
-  
   
   return(ppe)
   

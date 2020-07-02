@@ -12,7 +12,10 @@ server = function(input, output, session) {
   output$sesh_deets = renderText(print_and_capture(sessionInfo()))
   output$Rhome = renderText(R.home())
   cache = reactiveValues()
-  
+  cache$other_inputs_text <- 'Please load working directory options on the `Global Options tab` and try again'
+  observeEvent(cache$workdir, {
+    cache$other_inputs_text <- 'Update inputs via file upload as required'
+  })
   #build the folder when the button is clicked
   output$workfolder = renderText({
     req(input$go_validate)
@@ -74,20 +77,49 @@ server = function(input, output, session) {
   })
   
   #for the other inputs tab, copy the files to the new folder
-  output$oi_o <- renderText({
-    req(input$oi_go)
-    isolate({
-      if(is.null(cache$workdir)) return('Please load working directory options on the `Global Options tab` and try again')
-      mis_oi = which(is.null(c(input$linelist$datapath, input$cw$datapath, input$replacements$datapath, input$acrciq$datapath, input$chgs$datapath)))
-      if(length(mis_oi)>0){
-        return(paste0('Please provide valid information for: ', 
-                      paste0(c('linelist', 'crosswalk', 'replacement', 'acrciq', 'chgs')[mis_oi], collapse = ', ')))
-      }
-      copy_other_inputs(cache$workdir, input$linelist$datapath, input$cw$datapath,
-                        input$replacements$datapath, input$acrciq$datapath,
-                        input$chgs$datapath, input$cache_folder)
-    })
+  observeEvent(input$linelist$datapath, {
+    req(cache$workdir)
+    
+    linelist = load_spreadsheet(linelist)
+    setnames(linelist, tolower(names(linelist)))
+    linelist = linelist[, .(dbid, `res cnt death`, `res cnt hsp`,
+                            `res cnt sym`, `res test pos`,`classification value`)]
+    setnames(linelist, c('DBID', 'Res Cnt Death', 'Res Cnt Hsp', 'Res Cnt Sym', 'Res Test Pos', 'Classification Value'))
+    
+    write.csv(linelist, row.names = F, file.path(cache$workdir, 'linelist.csv'))
+    
+    cache$other_inputs_text <- 'Updated linelist'
+    
   })
+  observeEvent(input$cw$datapath, {
+    req(cache$workdir)
+    file.copy(input$cw$datapath, file.path(cache$workdir, paste0('crosswalk.', file_ext(input$cw$datapath))))
+    cache$other_inputs_text <- 'Updated crosswalk'
+    
+  })
+  observeEvent(input$replacements$datapath, {
+    req(cache$workdir)
+    file.copy(input$replacements$datapath, file.path(cache$workdir, paste0('replacements.', file_ext(input$replacements$datapath))))
+    cache$other_inputs_text <- 'Updated replacements'
+    
+  })
+  observeEvent(input$acrciq$datapath, {
+    req(cache$workdir)
+    file.copy(input$acrciq$datapath, file.path(cache$workdir, paste0('acrciq.', file_ext(input$acrciq$datapath))))
+    cache$other_inputs_text <- 'Updated ACRC/IQ'
+  })
+  observeEvent(input$chgs$datapath, {
+    req(cache$workdir)
+    file.copy(input$chgs$datapath, file.path(cache$workdir, paste0('chgs.', file_ext(input$chgs$datapath))))
+    cache$other_inputs_text <- 'Updated Chgs'
+  })
+  
+  observeEvent(input$noallocate$datapath, {
+    req(cache$workdir)
+    file.copy(input$noallocate$datapath, file.path(cache$workdir, paste0('donotallocate.', file_ext(input$noallocate$datapath))))
+    cache$other_inputs_text <- 'Updated Do Not Allocate Agency-Item pairs'
+  })
+  output$oi_o <- renderText(cache$other_inputs_text)
   #run allocations
   output$alloc_response <- renderText({
     
@@ -110,7 +142,8 @@ server = function(input, output, session) {
                             standardize_chinook = TRUE,
                             holdback_frac = input$holdback_frac,
                             hosp_supply = input$hosp_thresh,
-                            n95except = input$n95except)
+                            n95except = input$n95except,
+                            cache_loc = input$cache_folder)
       
       'Complete'
       
