@@ -37,7 +37,8 @@ assign_and_allocate <- function(orders, inv, w, ltcf_categories, replacement_fil
         message('running replacements')
         replacement = load_spreadsheet(replacement_file)
         
-        for(id in unique(replacement[, grouping])){
+        grps = sort(unique(replacement[, grouping]))
+        for(id in grps){
           
           rrr = replacer(replace = replacement[grouping == id], alloc, inv, names(valid), w)
           

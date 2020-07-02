@@ -5,7 +5,7 @@
 # ignore_items = ""
 # thetiers = runtiers
 # inv_mismatch = F
-order_filler = function(ppe, inv, ltcf, hospital, thetiers, ignore_items = "", inv_mismatch = FALSE){
+order_filler = function(ppe, inv, ltcf, hospital, thetiers, ignore_items = "", inv_mismatch = FALSE, n95except = ""){
   
   ppe = copy(ppe)
   ppe[agency %in% ltcf[is.na(cases), agency], tier := 1.5]
@@ -54,7 +54,7 @@ order_filler = function(ppe, inv, ltcf, hospital, thetiers, ignore_items = "", i
   
   #N95s in ltcfs
   #which ltcfs inappropriately requested N95s
-  bad_n95 = ppe[!(tier %in% c(0,1, 1.25) | type %in% c('meo', 'health clinic, community', 'congregate, jail')) & item_type == 'N95', ]
+  bad_n95 = ppe[!(tier %in% c(0,1, 1.25) | type %in% n95except) & item_type == 'N95', ]
   
   #for those that didn't ask for masks, give them a mask request of the same size
   mask_replace = (bad_n95[!agency %in% ppe[item_type == 'mask', agency], ])
@@ -70,7 +70,7 @@ order_filler = function(ppe, inv, ltcf, hospital, thetiers, ignore_items = "", i
   ppe = rbind(ppe, mask_replace)
   
   
-  ppe[!(tier %in% c(0,1,1.25) | type %in% c('meo', 'health clinic, community', 'congregate, jail', 'law enforcement')) & item_type == 'N95', fill_me := 0]
+  ppe[!(tier %in% c(0,1,1.25) | type %in% n95except) & item_type == 'N95', fill_me := 0]
   
   stopifnot(nrow(ppe[itemz == 'mask, any size', .N, order_ids][N>1]) == 0)
   

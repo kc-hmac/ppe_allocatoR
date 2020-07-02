@@ -12,7 +12,7 @@
 
 load_ppe_requests = function(orders, item_class, tiering, sized_items, ad_only = FALSE){
 
-  ppe = unique(load_spreadsheet(orders))
+  ppe = (load_spreadsheet(orders))
   if('POC' %in% names(ppe)) setnames(ppe, 'POC', 'poc')
   items = load_spreadsheet(item_class)
   tiers = load_spreadsheet(tiering)

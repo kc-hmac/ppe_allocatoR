@@ -13,6 +13,9 @@
 #' @return A character string of the file path to the saved tiers file.
 order_and_tiers = function(fold, date, t1, t2, order_v, load_from_previous, prev_v,
                            previous_week, dump, add_fp){
+  
+  notes = list('None', 'None','None')
+  
   #Prepare date/cycle information
   cycle_mo = month(date)
   cycle_day = mday(date)
@@ -28,6 +31,11 @@ order_and_tiers = function(fold, date, t1, t2, order_v, load_from_previous, prev
   stopifnot(all(names(t2) %in% names(t1)))
   
   orders = rbind(t1, t2, fill = T)
+  
+  if(!nrow(orders) == nrow(unique(orders))){
+    warning('Duplicate entries in the order sheets.')
+    notes[[1]] <- 'Duplicate entries in the order sheets. This is usually fine/represents duplicate rows in the underlying request files.'
+  }
   
   if(exists('add') && inherits(add, 'data.table')){
     stopifnot(all(names(add) %in% names(orders)))
@@ -73,13 +81,15 @@ order_and_tiers = function(fold, date, t1, t2, order_v, load_from_previous, prev
       stop(paste0('Error: tracking numbers (wa_num) are not unique per request: ', paste0(md_2[, wa_num], collapse = ', '),'.',
                   'This usually means WebEOC has assigned the same id to two different requests. Best way to fix this is to get logs to create a new entry and then replace the underlying data and rerun.'))
     }else{
-      warning(paste0('WA nums were not unique to a request, but filtering on status made them unique. Worth double checking: ', paste0(multi_dump[, wa_num], collapse = ', ') ))
+      msg = paste0('WA nums were not unique to a request, but filtering on status made them unique. Worth double checking: ', paste0(multi_dump[, wa_num], collapse = ', ') )
+      warning(msg)
+      notes[[2]] <- msg
     }
   }
   
   start_n = nrow(orders)
   orders[, n_r_start := .N, wa_num]
-  orders =merge(orders, dump, all.x = T, by = 'wa_num')
+  orders = merge(orders, dump, all.x = T, by = 'wa_num')
   orders[, n_r_end := .N, wa_num]
   end_n = nrow(orders)
   
@@ -106,6 +116,9 @@ order_and_tiers = function(fold, date, t1, t2, order_v, load_from_previous, prev
                            notes = "", current.tier = "", priority = "", logs_lnum = lnum, logs_type, logs_tier)])
     
     ttt[,lnum := gsub('/', ', ', lnum, fixed = T)]
+    #check previous week
+    prev_ids = trimws(unlist(strsplit(previous_week[, order_ids], split = ',', fixed = T)), whitespace = '[\\h\\v]')
+    dupes = intersect(ttt[, wa_num], prev_ids)
     
     if(load_from_previous){
       old = load_spreadsheet(file.path(fold, paste0('tiers_', cycle_mo, cycle_day, '_', prev_v, '.xlsx')))
@@ -113,21 +126,20 @@ order_and_tiers = function(fold, date, t1, t2, order_v, load_from_previous, prev
       ttt = rbind(old, ttt[!wa_num %in% old[, wa_num]])
     }
     
-    
-    #check previous week
-    prev_ids = trimws(unlist(strsplit(previous_week[, order_ids], split = ',', fixed = T)), whitespace = '[\\h\\v]')
-    dupes = intersect(ttt[, wa_num], prev_ids)
-    
     write.xlsx(orders, file.path(fold, paste0('order_list_', cycle_mo, cycle_day,'_', order_v, '.xlsx')))
     
     write.xlsx(ttt, file.path(fold, paste0('tiers_', cycle_mo, cycle_day, '_', order_v, '.xlsx')))
     write.csv(ttt, file.path(fold, paste0('tiers_raw.csv')), row.names = F, na = "")
     
-    if(length(dupes)>1) warning(paste('IDs also from next week:', paste0(dupes, collapse = ', ')))
+    if(length(dupes)>0){
+      warning(paste('IDs also from last week:', paste0(dupes, collapse = ', ')))
+      notes[[3]] <- paste('IDs also from last week:', paste0(dupes, collapse = ', '))
+    } 
     
   }
   
-  return(paste0('Tier File: ', file.path(fold, paste0('tiers_', cycle_mo, cycle_day, '_', order_v, '.xlsx'))))
+  return(paste0('Tier File: ', file.path(fold, paste0('tiers_', cycle_mo, cycle_day, '_', order_v, '.xlsx')),
+                ' Warning 1: ', notes[[1]], ' Warning 2: ', notes[[2]], ' Warning 3: ', notes[[3]]))
   
   
 }

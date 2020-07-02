@@ -21,12 +21,14 @@ run_allocations_drake <- function(
                       ignore_me = "",
                       standardize_chinook = T,
                       holdback_frac = 95,
-                      hosp_supply = Inf){
+                      hosp_supply = Inf,
+                      n95except = ""){
   
   #fix some inputs
   runtiers = trimws(unlist(strsplit(runtiers, ';', fixed = TRUE)))
   sized_items = trimws(unlist(strsplit(sized_items, ';', fixed = TRUE)))
   ignore_me = trimws(unlist(strsplit(ignore_me, ';', fixed = TRUE)))
+  n95except = trimws(unlist(strsplit(n95except, ';', fixed = TRUE)))
   holdback_frac = as.numeric(holdback_frac)
   if(is.na(holdback_frac) || holdback_frac >100 || holdback_frac<0){
     stop('Hold back percentage must be between 0 and 100')
@@ -119,7 +121,7 @@ run_allocations_drake <- function(
     
     #determine what orders to fill
     #also adjusts ltcfs into tier 1 and tier 1.5
-    orders = target(order_filler(ppe, inv, ltcf, hospital, !!runtiers, ignore_items = !!ignore_me, inv_mismatch = FALSE)),
+    orders = target(order_filler(ppe, inv, ltcf, hospital, !!runtiers, ignore_items = !!ignore_me, inv_mismatch = FALSE, n95except = !!n95except)),
     
     #get where requests and inventory don't match
     mismatch = target(order_filler(ppe, inv, ltcf, hospital, !!runtiers, ignore_items = !!ignore_me, inv_mismatch =  TRUE)),

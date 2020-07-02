@@ -3,7 +3,7 @@
 #' 
 #' @param replace a data.table of instructions on how to replace
 #' @param alloc list of allocations to be added to
-#' @param inv data.table of inventory after the allocations of allocs has been drawndown
+#' @param inv data.table of inventory after the allocations of allocs has been draw down
 #' @param validnames character vector of names from the valid data.table
 
 replacer = function(replace, alloc, inv, validnames, w){
@@ -13,8 +13,7 @@ replacer = function(replace, alloc, inv, validnames, w){
   stopifnot(length(unique(replace[,old_item_type]))== 1)
   stopifnot(length(unique(replace[,old_item_size]))== 1)
   
-  
-  #check the allocations to see if this is necessary, otherwise just return the alloctions
+  #check the allocations to see if this is necessary, otherwise just return the allocations
   allocz = rbindlist(alloc, fill = T)
   
   sub_allocz = allocz[item_type %in% replace[, old_item_type]]
@@ -59,7 +58,7 @@ replacer = function(replace, alloc, inv, validnames, w){
     
     #change the requests based on the ratio
     remain[, requested := requested * unique(replace[, ratio_old_new])]
-    
+    remain[fill_me != 0, fill_me := 1]
     #Assign and allocate the replacements
     rass = lapply(unique(remain[, itemz]), 
                   function(x) assign_ppe(x, remain, w, sub_inv_each))

@@ -109,7 +109,8 @@ server = function(input, output, session) {
                             ignore_me = input$ignore_me,
                             standardize_chinook = TRUE,
                             holdback_frac = input$holdback_frac,
-                            hosp_supply = input$hosp_thresh)
+                            hosp_supply = input$hosp_thresh,
+                            n95except = input$n95except)
       
       'Complete'
       
