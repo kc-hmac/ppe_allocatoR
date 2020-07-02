@@ -69,6 +69,9 @@ load_ppe_requests = function(orders, item_class, tiering, sized_items, ad_only =
   tiers = unique(tiers[, .(wa_num, agency, address, lnum, type, current.tier, priority)])
   ppe[, agency := NULL] #changing this up to fix excel drag errors in a lazy way
   
+  stopifnot('Missing classifications in tier sheet' = all(!is.na(tiers[, agency]) & !tiers[, agency] %in% ''))
+  stopifnot('Missing tiering in tier sheet' = all(!is.na(tiers[, current.tier]) & !tiers[, current.tier] %in% ''))
+  
   tiers_by_wa = tiers[, .N, .(wa_num)]
   
   if(nrow(tiers_by_wa[N>1])>0){

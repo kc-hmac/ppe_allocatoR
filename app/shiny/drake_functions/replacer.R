@@ -6,7 +6,7 @@
 #' @param inv data.table of inventory after the allocations of allocs has been draw down
 #' @param validnames character vector of names from the valid data.table
 
-replacer = function(replace, alloc, inv, validnames, w){
+replacer = function(replace, alloc, inv, validnames, w, donotallocate){
   
   stopifnot(length(unique(replace[,grouping]))== 1)
   stopifnot(length(unique(replace[,ratio_old_new]))== 1)
@@ -62,7 +62,7 @@ replacer = function(replace, alloc, inv, validnames, w){
     #Assign and allocate the replacements
     rass = lapply(unique(remain[, itemz]), 
                   function(x) assign_ppe(x, remain, w, sub_inv_each))
-    ralloc = lapply(rass, function(x) allocate_ppe(x, sub_inv, 'spray'))
+    ralloc = lapply(rass, function(x) allocate_ppe(x, sub_inv, 'spray', dnas = donotallocate))
     
     ralloc = ralloc[[1]]
     its = unique(inv[Item_long %in% names(ralloc), itemz])

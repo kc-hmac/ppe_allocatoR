@@ -74,7 +74,7 @@ allocate_ppe_greedy = function(ord, subinv, donotallocate){
 }
 
 allocate_ppe_spray = function(ord, subinv, donotallocate){
-  browser()
+  
   for(iii in subinv[, Item_long]){
     ord[, (iii) := 0]
   }
@@ -100,7 +100,7 @@ allocate_ppe_spray = function(ord, subinv, donotallocate){
     }
   }
   
-  #make sure we don't acidentally distribute more than we have
+  #make sure we don't accidentally distribute more than we have
   res = melt(ord[, lapply(.SD, sum), .SDcols = subinv[, Item_long]][, id:=.I], id.vars = 'id', variable.factor = FALSE)
   res[, id := NULL]
   res[, item_id := (tstrsplit(variable, split = ':', keep = 1))]

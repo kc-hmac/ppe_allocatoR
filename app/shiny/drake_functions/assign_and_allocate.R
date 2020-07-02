@@ -6,15 +6,17 @@ assign_and_allocate <- function(orders, inv, w, ltcf_categories, replacement_fil
   looptiers = sort(unique(orders[,tier]))
   message(paste('Assign/Allocating for tiers:', paste0(looptiers, collapse = ', ')))
   
-  #this will grown an object, which is naughty, but whatever
+  #this will grow an object, which is naughty, but whatever
   holder = list()
-  
-  #orders = orders[item_type %in% 'sanitizer, hand- bulk']
+
   orders = orders[type %in% ltcf_categories, type := 'ltcf']
   
   donotallocate = load_spreadsheet(donotallocate)
   
   mis_agencies = setdiff(donotallocate[, agency], orders[, agency])
+  if(length(mis_agencies)>0){
+    warning(paste0(paste0(mis_agencies, collapse = ', '), 'are specified in the do not allocate input, but are not found in the orders/requests. This is fine (e.g. old instructions carried forward), but worth double checking'))
+  }
   
   for(ttt in looptiers){
     for(ppp in sort(unique(orders[tier == ttt, priority]), na.last = T)){
@@ -45,7 +47,7 @@ assign_and_allocate <- function(orders, inv, w, ltcf_categories, replacement_fil
         grps = sort(unique(replacement[, grouping]))
         for(id in grps){
           
-          rrr = replacer(replace = replacement[grouping == id], alloc, inv, names(valid), w)
+          rrr = replacer(replace = replacement[grouping == id], alloc, inv, names(valid), w, donotallocate)
           
           alloc <- rrr[[1]]
           inv <- rrr[[2]]
