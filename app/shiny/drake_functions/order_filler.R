@@ -52,24 +52,6 @@ order_filler = function(ppe, inv, ltcf, hospital, thetiers, ignore_items = "", i
   ## make sure all tiered requests have a facility type
   stopifnot(ppe[fill_me==1, sum(is.na(type))]==0)
   
-  #N95s in ltcfs
-  #which ltcfs inappropriately requested N95s
-  bad_n95 = ppe[!(tier %in% c(0,1, 1.25) | type %in% n95except) & item_type == 'N95', ]
-  
-  #for those that didn't ask for masks, give them a mask request of the same size
-  mask_replace = (bad_n95[!agency %in% ppe[item_type == 'mask', agency], ])
-  mask_replace[, c('fill_me', 'ppe_id', 'item_type', 'size', 'itemz') := .(fill_me, -ppe_id, 'mask', 'any size', 'mask, any size')]
-  mask_replace = mask_replace[, .(requested = sum(requested), ppe_id = paste0(ppe_id, collapse = ', ')), by = setdiff(names(mask_replace), c('requested', 'ppe_id'))]
-  
-  #for those with masks already
-  mask_add = bad_n95[agency %in% ppe[item_type == 'mask', agency], .(add_me = sum(requested)), by = .(order_ids)][, itemz := paste0('mask',', ', 'any size')]
-  
-  ppe = merge(ppe, mask_add, all.x = T, by = c('order_ids', 'itemz'))
-  ppe[!is.na(add_me), requested := requested + add_me]
-  ppe[,add_me := NULL]
-  ppe = rbind(ppe, mask_replace)
-  
-  
   ppe[!(tier %in% c(0,1,1.25) | type %in% n95except) & item_type == 'N95', fill_me := 0]
   
   stopifnot(nrow(ppe[itemz == 'mask, any size', .N, order_ids][N>1]) == 0)
