@@ -13,6 +13,7 @@ server = function(input, output, session) {
   output$Rhome = renderText(R.home())
   cache = reactiveValues()
   cache$other_inputs_text <- 'Please load working directory options on the `Global Options tab` and try again'
+  cache$mm_text <- "Please press the (re)load button"
   observeEvent(cache$workdir, {
     cache$other_inputs_text <- 'Update inputs via file upload as required'
   })
@@ -149,7 +150,6 @@ server = function(input, output, session) {
       
       
     })
-
   })
   
 }

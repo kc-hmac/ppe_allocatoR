@@ -102,6 +102,7 @@ run_allocations_drake <- function(
   oot_hosp_1 = file.path(output, paste0('hosp_allocations', suffix,'.csv'))
   oot_hosp_2 = file.path(output, paste0('hosp_allocations_sum', suffix,'.csv'))
   sum_cycle = file.path(output, paste0('sum_cycle_valid', suffix,'.csv'))
+  mismatch_out = file.path(output, paste0('mismatch', suffix,'.csv'))
   
   #The plan
   plan <- drake_plan(
@@ -129,7 +130,8 @@ run_allocations_drake <- function(
     orders = target(order_filler(ppe, inv, ltcf, hospital, !!runtiers, ignore_items = !!ignore_me, inv_mismatch = FALSE, n95except = !!n95except)),
     
     #get where requests and inventory don't match
-    mismatch = target(order_filler(ppe, inv, ltcf, hospital, !!runtiers, ignore_items = !!ignore_me, inv_mismatch =  TRUE)),
+    mismatch = target(write.csv(order_filler(ppe, inv, ltcf, hospital, !!runtiers, ignore_items = !!ignore_me, inv_mismatch =  TRUE),
+                                row.names = FALSE, file_out(!!mismatch_out))),
     
     #allocate and assign
     allocations = target(assign_and_allocate(orders, inv, wt,ltcf_categories = !!ltcf_categories, file_in(!!replacement_file), file_in(!!donotallocate))),

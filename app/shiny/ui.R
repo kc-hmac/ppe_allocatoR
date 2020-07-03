@@ -93,10 +93,8 @@ body <- dashboardBody(
             actionButton('make_allocs', "Run Allocations"),
             textOutput('alloc_response')
             ),
-    tabItem(tabName = 'sessionInfo',
-            verbatimTextOutput('sesh_deets'),
-            #textOutput('Rhome')
-            )
+    tabItem(tabName = 'extras',
+            verbatimTextOutput('sesh_deets'))
   )
 )
 
