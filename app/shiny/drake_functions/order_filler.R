@@ -19,6 +19,11 @@ order_filler = function(ppe, inv, ltcf, hospital, thetiers, ignore_items = "", i
   inv_no_req = setdiff(inv$itemz, ppe$itemz)
   
   if(inv_mismatch){
+    
+    if(length(req_no_inv) > length(inv_no_req)){
+      inv_no_req = c(inv_no_req, rep(NA, ))
+    }
+    
     return(data.table(req_no_inv = req_no_inv, inv_no_req = inv_no_req))
   }
   
