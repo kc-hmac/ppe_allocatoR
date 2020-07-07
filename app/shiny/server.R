@@ -80,7 +80,7 @@ server = function(input, output, session) {
   #for the other inputs tab, copy the files to the new folder
   observeEvent(input$linelist$datapath, {
     req(cache$workdir)
-    
+    linelist = input$linelist$datapath
     linelist = load_spreadsheet(linelist)
     setnames(linelist, tolower(names(linelist)))
     linelist = linelist[, .(dbid, `res cnt death`, `res cnt hsp`,

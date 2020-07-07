@@ -19,9 +19,18 @@ load_ltcf_data <- function(ppe, ltcf_categories, residents, beds, cases, cw){
   cw = fix_ltcf_lnums(load_spreadsheet(cw), 'LicenseNumber', 'FacilityName')
   beds = fix_ltcf_lnums(load_spreadsheet(beds), 'LicenseNumber', 'FacilityName')
   
+  bts = data.table(abbriv = c('AL', 'NF', 'AF'), type = c('Assisted Living Facility', 'Nursing Home', 'Adult Family Home'))
+  
   #fix up the beds file
-  residents = residents[, .(lnum = License.number, res = as.numeric(`#.of.Residents`), type = `Provider.Type`)][!is.na(type), ]
-  beds = unique(beds[LicenseNumber %in% residents[, lnum] , .(lnum = LicenseNumber,abbriv = trimws(FacilityType), nbeds = LicensedBedCount)])
+  residents = residents[Provider.County == 'King', .(lnum = License.number, res = as.numeric(`#.of.Residents`), type = `Provider.Type`, bedbackup = as.numeric(`Bed.Count`))][!is.na(type), ]
+  beds = unique(beds[, .(lnum = LicenseNumber,abbriv = trimws(FacilityType), nbeds = LicensedBedCount)])
+  
+  beds = merge(beds, bts, all.x = T, by = 'abbriv')
+  
+  residents = merge(residents, beds[,.(lnum, nbeds, type)], by = c('lnum', 'type'), all = T)
+  
+  baddies = residents[, .N, lnum][N>1, lnum]
+  if(length(baddies)>0) stop(paste0('lnum:agency relationship is not 1:1 for ', paste0(baddies, ', ')))
   
   cases_ltcf = cases_ltcf[, .(DBID, res_dead = as.numeric(`Res Cnt Death`), res_hosp = as.numeric(`Res Cnt Hsp`),
                               res_sym = as.numeric(`Res Cnt Sym`), res_pos = as.numeric(`Res Test Pos`),
@@ -46,7 +55,7 @@ load_ltcf_data <- function(ppe, ltcf_categories, residents, beds, cases, cw){
     nums = trimws(unlist(strsplit(nums, ',', fixed = T)),whitespace =  "[\\h\\v]")
     
     residents[lnum %in% nums, agency := ag]
-    beds[lnum %in% nums, agency := ag]
+    #beds[lnum %in% nums, agency := ag]
     cases_ltcf[LicenseNumber %in% nums, agency := ag]
     
   }
@@ -55,24 +64,22 @@ load_ltcf_data <- function(ppe, ltcf_categories, residents, beds, cases, cw){
   if(nrow(unique(ppe[type %in% ltcf_categories, ]))>0){
     chk = setdiff(unique(ppe[type %in% ltcf_categories, agency]), residents[,agency])
     if(length(chk)>0) stop(paste0('Could not find the following agencies:', paste0(chk, collapse = ', '),
-                                  'Check to make sure it has a license number that is unique within the tier list.
+                                  '. Check to make sure it has a license number that is unique within the tier list.
                                   In some rare cases, the facility might not be represented in the comprehensive LTCF lists.
                                   Check DSHS website for more.'))
   
     #bed weight var-- preferably, residents, if not, beds
-    residents = residents[!is.na(agency), .(res = sum(res, na.rm = T), type = paste(unique(type), collapse =',')), agency]
-    beds = beds[, .(nbeds = sum(nbeds)), agency]
-    st = nrow(residents)
-    residents = merge(residents, beds, all.x = T, by = c('agency'))
-    stopifnot(nrow(residents)==st)
-    residents[, frac_filled := res/nbeds]
+    residents = residents[!is.na(agency), .(res = sum(res, na.rm = T),
+                                            nbeds = sum(nbeds, na.rm = T),
+                                            bedbackup = sum(bedbackup, na.rm = T),
+                                            type = paste(unique(type), collapse =',')), agency]
+  
     
     #if res > nbeds, cap at beds
     residents[, wt := res]
-    residents[res >nbeds, wt := nbeds]
-    residents[is.na(wt), wt := nbeds]
-    residents[wt %in% 0, wt := nbeds]
-    residents[is.na(wt) & type == 'Adult Family Home', wt := 5]
+    residents[is.na(wt) | wt ==0, wt := nbeds]
+    residents[is.na(wt) | wt ==0, wt := bedbackup]
+    residents[is.na(wt) | wt ==0 & type == 'Adult Family Home', wt := 5]
     
     if(!all(!is.na(residents[, wt]))){
       stop(paste('The following agencies have an NA weight (either beds or resident counts are NA):',
