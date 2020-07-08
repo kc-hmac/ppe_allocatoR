@@ -169,7 +169,7 @@ run_allocations_drake <- function(
     #unfilled gowns
     unfil_gowns = target(write.csv(sum_full[fill_me == 1 & percent_filled<100 & item_type == 'gowns'], row.names = F, file = file_out(!!oot_gowns))),
     
-    ltcf_sum = target(make_ltcf_summary(sum_full,file_in(!!residents), file_out(!!oot_ltcf_1), file_out(!!oot_ltcf_2),file_out(!!oot_ltcf_3))),
+    ltcf_sum = target(make_ltcf_summary(sum_full,file_in(!!residents), file_in(!!beds), file_out(!!oot_ltcf_1), file_out(!!oot_ltcf_2),file_out(!!oot_ltcf_3))),
     
     hosp_sum = target(make_type_summary(sum_full,'hospital', file_out(!!oot_hosp_1), file_out(!!oot_hosp_2))),
     

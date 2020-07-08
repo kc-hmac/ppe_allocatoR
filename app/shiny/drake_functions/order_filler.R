@@ -15,8 +15,8 @@ order_filler = function(ppe, inv, ltcf, hospital, thetiers, ignore_items = "", i
   ppe[!tier %in% thetiers, fill_me := 0]
   
   #only items we have
-  req_no_inv = setdiff(ppe$itemz, inv$itemz)
-  inv_no_req = setdiff(inv$itemz, ppe$itemz)
+  req_no_inv = sort(setdiff(ppe$itemz, inv$itemz))
+  inv_no_req = sort(setdiff(inv$itemz, ppe$itemz))
   
   if(inv_mismatch){
     
