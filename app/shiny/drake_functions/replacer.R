@@ -89,6 +89,7 @@ replacer = function(replace, alloc, inv, validnames, w, donotallocate){
         adder = rbind(alloc[[alloc_id]], adder, fill = T)
       }
       if(nrow(adder)>0){
+        
         #collapse
         col_cols = c('requested', 'assigned', 'allocated', var_names, 'fill_me', 'droppies', 'ord_id', 'ppe_id')
         adder = adder[, lapply(col_cols, function(x){

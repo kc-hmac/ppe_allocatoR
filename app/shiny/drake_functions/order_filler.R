@@ -11,9 +11,6 @@ order_filler = function(ppe, inv, ltcf, hospital, thetiers, ignore_items = "", i
   ppe[agency %in% ltcf[is.na(cases), agency], tier := 1.5]
   ppe[, fill_me := 1]
   
-  #only the tier we are running for
-  ppe[!tier %in% thetiers, fill_me := 0]
-  
   #only items we have
   req_no_inv = sort(setdiff(ppe$itemz, inv$itemz))
   inv_no_req = sort(setdiff(inv$itemz, ppe$itemz))
@@ -31,6 +28,12 @@ order_filler = function(ppe, inv, ltcf, hospital, thetiers, ignore_items = "", i
   
   warning(paste('The following item types were requested, but are not in inventory:', paste(req_no_inv, collapse = ' | ')))
   warning(paste('The following item types are in inventory, but not requested:', paste(inv_no_req, collapse = ' | ')))
+  
+  #items we don't have in stock, but maybe elgible for replacement
+  ppe[itemz %in% req_no_inv, fill_me := -1]
+  
+  #only the tier we are running for
+  ppe[!tier %in% thetiers, fill_me := 0]
   
   #manual adjustments
   ppe[item_type %in% 'testing, test kits', fill_me := 0]
@@ -63,7 +66,7 @@ order_filler = function(ppe, inv, ltcf, hospital, thetiers, ignore_items = "", i
   
   stopifnot(nrow(ppe[itemz == 'mask, any size', .N, order_ids][N>1]) == 0)
   
-  ppe[itemz %in% req_no_inv, fill_me := -1]
+
   
   
   return(ppe)
