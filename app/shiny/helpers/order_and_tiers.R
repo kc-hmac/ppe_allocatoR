@@ -102,6 +102,9 @@ order_and_tiers = function(fold, date, t1, t2, order_v, load_from_previous, prev
   orders[, item_requested := gsub('"', "", item_requested, fixed = T)]
   
   
+  #force numerics
+  orders[, requested := as.numeric(requested)]
+  
   #create tiering file
   tiers = orders[, .(wa_num, agency, address, lnum = `_lnum`, type = "",
                      newname = "", notes = "", current.tier = "",
