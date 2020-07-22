@@ -27,9 +27,11 @@ load_ppe_requests = function(orders, item_class, tiering, sized_items, ad_only =
   
   setnames(items, 'item', 'item_requested')
   ppe = ppe[!is.na(item_requested)]
-  
   ppe[, item_requested := trimws(item_requested, whitespace = "[\\h\\v]")]
 
+  ppe = ppe[, requested := as.numeric(requested)]
+  ppe = ppe[!is.na(requested),]
+  
   items = unique(items)
   
   item_maps = items[, .N, item_requested]
