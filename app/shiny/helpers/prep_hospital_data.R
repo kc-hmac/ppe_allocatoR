@@ -23,7 +23,7 @@ prep_hospital_data = function(fold, ppe, covid){
   stopifnot('Missing item classifications' = all(!is.na(ppe_hosp[,item_type])))
   
   #keep the latest entry
-  ppe_hosp = ppe_hosp[ppe_hosp[, .I[which.max(`Created On Date only`)], by = .(name = `'Supply Entry'[Facility]`, item_type)]$V1]
+  ppe_hosp = ppe_hosp[ppe_hosp[, .I[which.max(`Created On`)], by = .(name = `'Supply Entry'[Facility]`, item_type)]$V1]
   
   #collapse and create a UW w/o Valley medical row because of UW reasons
   ppe_hosp = ppe_hosp[, .(days = min(days, na.rm = T)), by = .(name = `'Supply Entry'[Facility]`, item_type)]
