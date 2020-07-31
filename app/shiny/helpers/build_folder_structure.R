@@ -17,6 +17,9 @@ build_folder_structure = function(date, base_folder){
   
   dir.create(fold)
   dir.create(file.path(fold, 'inv'))
+  dir.create(file.path(fold, 'email_files'))
+  dir.create(file.path(fold, 'prior_week_files'))
+  dir.create(file.path(fold, 'web_download_files'))
   
   return(fold)
 
