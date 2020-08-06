@@ -24,12 +24,19 @@ save_picklist= function(pl, template, outpath, tiers =unique(pl$tier)){
       #fill in the things
       writeData(wb, wb_name, paste0('Tier: ', this_pl[, tier] ), xy = c(1,1))
       writeData(wb, wb_name, paste0('Order Time: ', Sys.time() ), xy = c(1,2))
-      writeData(wb, wb_name, paste0('Issued to: ', this_pl[, agency]), xy = c(1,3))
-      writeData(wb, wb_name, paste0('Loc: ', this_pl[, Address]), xy = c(1,4))
-      writeData(wb, wb_name, paste0('Name: ', this_pl[, POC]), xy = c(1,5))
-      writeData(wb, wb_name, paste0('Orders: ', this_pl[, order_ids]), xy = c(1,8))
-      writeData(wb, wb_name, paste0('Phone: ', this_pl[, Phone]), xy = c(1,6))
-      writeData(wb, wb_name, paste0('Email: ', this_pl[, email]), xy = c(1,7))
+      writeData(wb, wb_name, 'Issued to:', xy = c(1,3))
+      writeData(wb, wb_name, this_pl[, agency], xy = c(2,3))
+      writeData(wb, wb_name, 'Loc:', xy = c(1,4))
+      writeData(wb, wb_name, this_pl[, Address], xy = c(2,4))
+      writeData(wb, wb_name, 'Name:', xy = c(1,5))
+      writeData(wb, wb_name, this_pl[, POC], xy = c(2,5))
+      writeData(wb, wb_name, 'Orders:', xy = c(1,8))
+      writeData(wb, wb_name, this_pl[, order_ids], xy = c(2,8))
+      writeData(wb, wb_name, 'Phone:', xy = c(1,6))
+      writeData(wb, wb_name, this_pl[, Phone], xy = c(2,6))
+      writeData(wb, wb_name, 'Email: ', xy = c(1,7))
+      writeData(wb, wb_name, this_pl[, email], xy = c(2,7))
+      
       #write the matrix of items
       agency = this_pl$agency
       this_pl[, id := ""]
