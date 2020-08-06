@@ -73,6 +73,7 @@ body <- dashboardBody(
             fileInput('replacements', 'Replacement Instructions', width = input_width, placeholder = 'replacements.xlsx'),
             fileInput('acrciq', 'ACRC/IQ Occupancy', width = input_width, placeholder = 'acrciq.xlsx'),
             fileInput('chgs', 'PPE Changes by type', width = input_width, placeholder = 'chgs.xlsx'),
+            fileInput('noallocate', 'Do not allocate agency-item list', width = input_width, placeholder = 'donotallocate.xlsx'),
             #actionButton('oi_go', 'Update/Upload'),
             textOutput('oi_o')),
     tabItem(tabName = 'valid', h2('Validate Inputs')),
