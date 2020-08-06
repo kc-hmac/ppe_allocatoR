@@ -18,8 +18,8 @@ copy_other_inputs <- function(fold, linelist, crosswalk, replace, acrciq, chgs, 
   #the line list can sometimes have sensitive data so this to reduce the chance of data leakage
   linelist = load_spreadsheet(linelist)
   setnames(linelist, tolower(names(linelist)))
-  linelist = linelist[, .(dbid, `sum of cddb resident death`, `sum of cddb resident hospitalized`,
-                 `sum of cddb resident ill`, `res test pos`,`classification value`)]
+  linelist = linelist[, .(dbid, `cddb resident death`, `cddb resident hospitalized`,
+                 `cddb resident ill`, `res test pos`,`classification value`)]
   setnames(linelist, c('DBID', 'Res Cnt Death', 'Res Cnt Hsp', 'Res Cnt Sym', 'Res Test Pos', 'Classification Value'))
   
   write.csv(linelist, row.names = F, file.path(fold, 'linelist.csv'))
