@@ -3,6 +3,7 @@
 print('run ui')
 source('./startup.R')
 input_width = '400px'
+input_width_wide = '640px'
 header <- dashboardHeader(
   disable = T
 )
@@ -84,10 +85,10 @@ body <- dashboardBody(
             textInput('ot_v', 'Orders & Tiers Version', 1),
             textInput('runtiers', 'Tiers to run (semi-colon seperated list)', value = defaults[variable == 'runtiers', value]),
             textInput('sized', 'Item types to distribute by size (semi-colon seperated list)',
-                      value = defaults[variable == 'sized_items', value]),
+                      value = defaults[variable == 'sized_items', value], width = input_width_wide),
             textInput('ignore_me', 'Item types to not distribute (semi-colon seperated list)', value = defaults[variable == 'do_not_distribute', value]),
             textInput('n95except', 'Allowed N95 exceptions (semi-colon seperated list)',
-                      value = defaults[variable == 'N95_exceptions', value]),
+                      value = defaults[variable == 'N95_exceptions', value], width = input_width_wide),
             numericInput('holdback_frac', 'Inventory Distribute %', 95, 0, 100),
             textInput('hosp_thresh', 'Hospital Days of Supply Threshold', Inf),
             textInput('cache_folder', 'Directory to drake cache', value = defaults[variable == 'cache_folder', value]),
