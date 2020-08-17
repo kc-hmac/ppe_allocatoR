@@ -23,10 +23,10 @@ save_picklist= function(pl, template, outpath, tiers =unique(pl$tier)){
       
       #fill in the things
       writeData(wb, wb_name, paste0('Tier: ', this_pl[, tier] ), xy = c(1,1))
-      writeData(wb, wb_name, paste0('Order Time: ', Sys.time() ), xy = c(1,2))
+      writeData(wb, wb_name, paste0('Order Time: ', as.Date(Sys.time()) ), xy = c(1,2))
       writeData(wb, wb_name, 'Issued to:', xy = c(1,3))
       writeData(wb, wb_name, this_pl[, agency], xy = c(2,3))
-      writeData(wb, wb_name, 'Loc:', xy = c(1,4))
+      writeData(wb, wb_name, 'Address:', xy = c(1,4))
       writeData(wb, wb_name, this_pl[, Address], xy = c(2,4))
       writeData(wb, wb_name, 'Name:', xy = c(1,5))
       writeData(wb, wb_name, this_pl[, POC], xy = c(2,5))
@@ -49,7 +49,7 @@ save_picklist= function(pl, template, outpath, tiers =unique(pl$tier)){
       
       this_pl = this_pl[, .(Line = .I, Item =id, Description, Quantity = value, `Qty Picked` = "")]
       
-      writeDataTable(wb, wb_name, this_pl, startCol = 1, startRow = 15, colNames = TRUE, tableStyle = 'TableStyleMedium18', withFilter = F,
+      writeDataTable(wb, wb_name, this_pl, startCol = 1, startRow = 16, colNames = TRUE, tableStyle = 'TableStyleMedium18', withFilter = F,
                      bandedRows = TRUE)
       
       
