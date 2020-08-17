@@ -64,7 +64,7 @@ run_allocations_drake <- function(
   ltcf_categories = c('snf + alf', 'afh', 'supported living', 'alf', 'snf', 'ltcf')
   
   #Inputs! file paths
-  template = file.path('./templates/template_order_51.xlsx')
+  template = file.path('./templates/template_order_87.xlsx')
   tiering = file.path(fold, paste0('tiers_', cycle_mo, cycle_day, '_', ot_v, '.xlsx'))
   orders = file.path(fold, paste0('order_list_', cycle_mo, cycle_day, '_', ot_v, '.xlsx'))
   item_class = file.path(fold, "item_classifications.csv")
