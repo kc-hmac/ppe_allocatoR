@@ -102,6 +102,7 @@ body <- dashboardBody(
             h2('Create Regional Picklists'),
             textInput('routes_cycle_v', 'Cycle Version'),
             textInput('routes_ot_v', 'Orders & Tiers Version'),
+            textInput('cache_routes_folder', 'Directory to drake routes cache', value = defaults[variable == 'cache_routes_folder', value]),
             actionButton('routes_go', 'Create picklists by Route'),
             textOutput('routes_o')
             ),
