@@ -11,9 +11,9 @@
 #' @param holdback_frac numeric value between 0 and 100. Signifies the percent of supplies of any given item that can be allocated.
 #' @param hosp_supply numeric value. Number of days of supply a hospital must have less than to be eligible for a shipment. Is calculated per item type.
 run_allocations_drake <- function(
-                      fold, 
+                      fold,
                       date,
-                      cycle_version, 
+                      cycle_version,
                       inventory_version,
                       ordersandtiers_version,
                       runtiers,
@@ -24,9 +24,9 @@ run_allocations_drake <- function(
                       hosp_supply = Inf,
                       n95except = "",
                       cache_loc){
-  
+
   stopifnot('Parent folder for drake cache does not exist' = !missing(cache_loc) && dir.exists(cache_loc))
-  
+
   #fix some inputs
   runtiers = trimws(unlist(strsplit(runtiers, ';', fixed = TRUE)))
   sized_items = trimws(unlist(strsplit(sized_items, ';', fixed = TRUE)))
@@ -41,7 +41,7 @@ run_allocations_drake <- function(
   stopifnot('standardize chinook must be a logical' = !is.na(standardize_chinook_addresses))
   hosp_supply = as.numeric(hosp_supply)
   stopifnot('Hospital supply must be greater than 0' = hosp_supply>0)
-  
+
   #Load cycle information
   cycle_day = mday(date)
   cycle_mo = month(date)
@@ -51,21 +51,21 @@ run_allocations_drake <- function(
   suffix = paste0('_', cycle_mo,cycle_day,'_v', cycle_v)
   output = file.path(fold, suffix)
   dir.create(output)
-  
+
   #construct cache
   dir.create(file.path(cache_loc, suffix))
-  
+
   if (!dir.exists(file.path(cache_loc, suffix, '.drake')))
     invisible(new_cache(path = file.path(cache_loc, suffix, '.drake')))
-  
+
   cache = drake_cache(file.path(cache_loc, suffix, '.drake'))
-  
+
   #governing variables
   ltcf_categories = c('snf + alf', 'afh', 'supported living', 'alf', 'snf', 'ltcf')
-  
+
   #routes by region
   regions = c('north_seattle_shoreline','bellevue','sw_king_county','east_king_county','renton','south_seattle_downtown','se_king_county')
-  
+
   #Inputs! file paths
   template = file.path('./templates/template_order_87.xlsx')
   tiering = file.path(fold, paste0('tiers_', cycle_mo, cycle_day, '_', ot_v, '.xlsx'))
@@ -82,10 +82,10 @@ run_allocations_drake <- function(
   if(!file.exists(acrciq)) acrciq <- file.path(fold, 'acrciq.csv')
   chgs <- file.path(fold, 'chgs.xlsx')
   if(!file.exists(chgs)) chgs <- file.path(fold, 'chgs.csv')
-  
+
   donotallocate <- file.path(fold, 'donotallocate.xlsx')
   if(!file.exists(donotallocate)) donotallocate <- file.path(fold, 'donotallocate.csv')
-  
+
   #Outputs
   fillable = file.path(output, paste0('asum_fillable', suffix,'.csv'))
   considered = file.path(output, paste0('asum_consider', suffix,'.csv'))
@@ -107,42 +107,43 @@ run_allocations_drake <- function(
   oot_hosp_2 = file.path(output, paste0('hosp_allocations_sum', suffix,'.csv'))
   sum_cycle = file.path(output, paste0('sum_cycle_valid', suffix,'.csv'))
   mismatch_out = file.path(output, paste0('mismatch', suffix,'.csv'))
-  
+  oot_weights = file.path(output, paste0('weights', suffix,'.csv'))
+
   #The plan
   plan <- drake_plan(
-    
+
     #load ppe and do initial tiering
     ppe = target(load_ppe_requests(file_in(!!orders), file_in(!!item_class), file_in(!!tiering), !!sized_items)),
-    
+
     #addresses
     ads = target(load_ppe_requests(file_in(!!orders), file_in(!!item_class), file_in(!!tiering), !!sized_items, TRUE)),
-    
+
     #load inventory
     inv = target(load_inventory(file_in(!!inv_fp), !!sized_items, !!holdback_frac)),
-    
+
     #load and format hospital data
     hospital = target(load_hospital_data(file_in(!!hosp), !!hosp_supply)),
-    
+
     #load and format ltcf data
     ltcf = target(load_ltcf_data(ppe, !!ltcf_categories, file_in(!!residents), file_in(!!beds), file_in(!!cases), file_in(!!cw))),
-    
+
     #create weights
     wt = target(create_weights(ppe, hospital, ltcf, file_in(!!acrciq), file_in(!!chgs))),
-    
+
     #determine what orders to fill
     #also adjusts ltcfs into tier 1 and tier 1.5
     orders = target(order_filler(ppe, inv, ltcf, hospital, !!runtiers, ignore_items = !!ignore_me, inv_mismatch = FALSE, n95except = !!n95except)),
-    
+
     #get where requests and inventory don't match
     mismatch = target(write.csv(order_filler(ppe, inv, ltcf, hospital, !!runtiers, ignore_items = !!ignore_me, inv_mismatch =  TRUE),
                                 row.names = FALSE, file_out(!!mismatch_out))),
-    
+
     #allocate and assign
     allocations = target(assign_and_allocate(orders, inv, wt,ltcf_categories = !!ltcf_categories, file_in(!!replacement_file), file_in(!!donotallocate))),
-    
+
     #confirm allocations don't overallocate and create leftovers summary
     leftovers = target(find_leftovers(inv, allocations)),
-    
+
     write_left = target(write.csv(leftovers, row.names = F,
                                   file_out(!!lefts))),
     left_sum = target(write.csv(summarize_leftovers(leftovers), row.names = F, file_out(!!lefts_sum))),
@@ -150,41 +151,44 @@ run_allocations_drake <- function(
     sum_full = target(agency_summary(allocations, type = 'all',
                                      outpath = file_out(!!allords),
                                      tiers = !!runtiers)),
-    
+
     #construct summary by type and item category
-    
+
     #create a pick list and write (wide format) and add delivery info
     pl_wide = target(create_wide_pl(allocations, ads, !!standardize_chinook_addresses)),
-    
+
     #write to excel
     out_excel = target(save_picklist(pl_wide, !!template, file_out(!!oot_excel))),
-    
+
     # by tier
     out_xl_tier = target(save_picklist(pl_wide, !!template, file_out(a), t), transform = map(t = !!runtiers, a = !!out_excel_by_tier, .id = t)),
-    
+
     #by regional - TODO: add region to wide picklist from the tier sheet (currently generating as separate tab step)
     # out_xl_region = target(save_region_picklist(pl_wide, !!template, file_out(a), r), transform = map(r = !!regions, a = !!out_excel_by_region, .id = r)),
-    
+
     #write out wide picklist
     out_wide = target(write.csv(pl_wide, file_out(!!oot_wide), row.names = F)),
-    
+
+    #write out wide picklist
+    out_weights = target(write.csv(wt, file_out(!!oot_weights), row.names = F)),
+
     #write out distribution report
     out_dr = target(write.csv(distribution_report(allocations, inv), row.names = F, file = !!oot_dr)),
-    
+
     #write out no orders
     no_orders = target(no_order(sum_full, file_out(!!oot_no_1), file_out(!!oot_no_2))),
-    
+
     #unfilled gowns
     unfil_gowns = target(write.csv(sum_full[fill_me == 1 & percent_filled<100 & item_type == 'gowns'], row.names = F, file = file_out(!!oot_gowns))),
-    
+
     ltcf_sum = target(make_ltcf_summary(sum_full,file_in(!!residents), file_in(!!beds), file_out(!!oot_ltcf_1), file_out(!!oot_ltcf_2),file_out(!!oot_ltcf_3))),
-    
+
     hosp_sum = target(make_type_summary(sum_full,'hospital', file_out(!!oot_hosp_1), file_out(!!oot_hosp_2))),
-    
+
     overall = target(write.csv(summarize_cycle(sum_full),file = !!sum_cycle, row.names = F ))
-    
+
   )
-  
+
   make(plan, cache = cache)
-  
+
 }
