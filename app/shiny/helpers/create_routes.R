@@ -54,6 +54,7 @@ create_routes = function(fold,
     out_xl_region = target(save_region_picklist(pl_wide_region, !!template, file_out(a), r), transform = map(r = !!regions, a = !!out_excel_by_region, .id = r)),
   )
   
-  make(plan_route_picklists, cache = cache)
+  # make(plan_route_picklists, cache = cache)
+  make(plan_route_picklists)
   print(paste0('Picklists created in ',file.path(fold),'/',suffix))
 } 
