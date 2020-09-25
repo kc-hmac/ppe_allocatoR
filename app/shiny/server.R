@@ -1,4 +1,4 @@
-# enable large files like WebEOC download
+#enable large files like WebEOC download
 options(shiny.maxRequestSize=30*1024^2)
 
 print('run server')
