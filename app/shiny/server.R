@@ -1,13 +1,16 @@
+# enable large files like WebEOC download
+options(shiny.maxRequestSize=30*1024^2)
+
 print('run server')
 server = function(input, output, session) {
-  
+
   # IMPORTANT!
   # this is needed to terminate the R process when the
   # shiny app session ends. Otherwise, you end up with a zombie process
   session$onSessionEnded(function() {
     stopApp()
   })
-  
+
   output$wd <- renderText(getwd())
   output$sesh_deets = renderText(print_and_capture(sessionInfo()))
   output$Rhome = renderText(R.home())
@@ -20,15 +23,15 @@ server = function(input, output, session) {
   #build the folder when the button is clicked
   output$workfolder = renderText({
     req(input$go_validate)
-    
+
     isolate({
       req(input$cycle_date, input$workdir)
       ret <- build_folder_structure(input$cycle_date, input$workdir)
       cache$workdir <- ret
     })
-    
+
   })
-  
+
   #Create the orders and tier files
   output$t_o <- renderText({
     req(input$ot_run, cache$workdir, input$cycle_date)
@@ -39,7 +42,7 @@ server = function(input, output, session) {
                       dump = input$ot_dump$datapath, add_fp = input$ot_add$datapath)
     })
   })
-  
+
   #Create the item classifications file
   output$ic_o <- renderText({
     req(input$ic_old, input$ic_new, input$ic_go)
@@ -48,7 +51,7 @@ server = function(input, output, session) {
       prep_item_classifications(cache$workdir, input$cycle_date, input$ic_old$datapath, input$ic_new)
     })
   })
-  
+
   #Create the inventory
   output$inv_o <- renderText({
     req(input$inv_go)
@@ -56,13 +59,13 @@ server = function(input, output, session) {
       if(is.null(cache$workdir)) return('Please load working directory options on the `Global Options tab` and try again')
       mis_inv = which(is.null(c(input$inv_new, input$inv_new_ver, input$inv_old)))
       if(length(mis_inv)>0){
-        return(paste0('Please provide valid information for: ', 
+        return(paste0('Please provide valid information for: ',
                       paste0(c('Version', 'New Inventory', 'Old Inventory')[mis_inv], collapse = ', ')))
       }
       prep_inventory(cache$workdir, input$cycle_date, input$inv_old$datapath, input$inv_new$datapath, input$inv_new_ver)
     })
   })
-  
+
   #Hospital Data
   output$hosp_o <- renderText({
     req(input$hosp_go)
@@ -70,13 +73,13 @@ server = function(input, output, session) {
       if(is.null(cache$workdir)) return('Please load working directory options on the `Global Options tab` and try again')
       mis_hosp = which(is.null(c(input$hosp_inv$datapath, input$hosp_covid$datapath)))
       if(length(mis_hosp)>0){
-        return(paste0('Please provide valid information for: ', 
+        return(paste0('Please provide valid information for: ',
                       paste0(c('Inventory', 'Covid')[mis_hosp], collapse = ', ')))
       }
       prep_hospital_data(cache$workdir, input$hosp_inv$datapath, input$hosp_covid$datapath)
     })
   })
-  
+
   #Create routes
   output$routes_o <- renderText({
     req(input$routes_go)
@@ -89,7 +92,7 @@ server = function(input, output, session) {
                     cache_routes_loc = input$cache_routes_folder)
     })
   })
-  
+
   #for the other inputs tab, copy the files to the new folder
   observeEvent(input$linelist$datapath, {
     req(cache$workdir)
@@ -97,25 +100,25 @@ server = function(input, output, session) {
     linelist = load_spreadsheet(linelist)
     setnames(linelist, tolower(names(linelist)))
     linelist = linelist[, .(dbid, `cddb resident death`, `cddb resident hospitalized`,
-                            `cddb resident ill`, `res test pos`,`classification value`)]
-    setnames(linelist, c('DBID', 'Res Cnt Death', 'Res Cnt Hsp', 'Res Cnt Sym', 'Res Test Pos', 'Classification Value'))
-    
+                            `cddb resident ill`, `res test pos`,`classification value`,`openclose`,`wdrs resident death`,`wdrs resident hospitalized`,`wdrs positive residents`)]
+    setnames(linelist, c('DBID', 'Res Cnt Death', 'Res Cnt Hsp', 'Res Cnt Sym', 'Res Test Pos', 'Classification Value', 'OpenClose', 'WDRS Res Cnt Death','WDRS Res Cnt Hsp','WDRS Res Test Pos'))
+
     write.csv(linelist, row.names = F, file.path(cache$workdir, 'linelist.csv'))
-    
+
     cache$other_inputs_text <- 'Updated linelist'
-    
+
   })
   observeEvent(input$cw$datapath, {
     req(cache$workdir)
     file.copy(input$cw$datapath, file.path(cache$workdir, paste0('crosswalk.', file_ext(input$cw$datapath))))
     cache$other_inputs_text <- 'Updated crosswalk'
-    
+
   })
   observeEvent(input$replacements$datapath, {
     req(cache$workdir)
     file.copy(input$replacements$datapath, file.path(cache$workdir, paste0('replacements.', file_ext(input$replacements$datapath))))
     cache$other_inputs_text <- 'Updated replacements'
-    
+
   })
   observeEvent(input$acrciq$datapath, {
     req(cache$workdir)
@@ -127,14 +130,14 @@ server = function(input, output, session) {
     file.copy(input$chgs$datapath, file.path(cache$workdir, paste0('chgs.', file_ext(input$chgs$datapath))))
     cache$other_inputs_text <- 'Updated Chgs'
   })
-  
+
   observeEvent(input$noallocate$datapath, {
     req(cache$workdir)
     file.copy(input$noallocate$datapath, file.path(cache$workdir, paste0('donotallocate.', file_ext(input$noallocate$datapath))))
     cache$other_inputs_text <- 'Updated Do Not Allocate Agency-Item pairs'
   })
   output$oi_o <- renderText(cache$other_inputs_text)
-  
+
   #Create QA file for orders
   output$qa_o <- renderText({
     req(input$qa_ot_v, input$qa_go)
@@ -143,14 +146,14 @@ server = function(input, output, session) {
       qa_orders(cache$workdir, input$cycle_date, input$qa_ot_v)
     })
   })
-  
+
   #run allocations
   output$alloc_response <- renderText({
-    
+
     if(input$make_allocs == 0) return('Press button to run allocations')
     isolate({
       if(is.null(cache$workdir)) return('Please load working directory options on the `Global Options tab`')
-      
+
       #save the things so its easier to debug
       hold_cache = reactiveValuesToList(cache)
       hold_input = reactiveValuesToList(input)
@@ -168,11 +171,11 @@ server = function(input, output, session) {
                             hosp_supply = input$hosp_thresh,
                             n95except = input$n95except,
                             cache_loc = input$cache_folder)
-      
+
       'Complete'
-      
-      
+
+
     })
   })
-  
+
 }
