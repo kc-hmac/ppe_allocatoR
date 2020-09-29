@@ -2,7 +2,7 @@
 #' @param fold file.path- path to the directory of the working folder (e.g. where outputs get saved)
 #' @param date date- the date (usually derived from \code{\link{Sys.Date()}}) representing the closing day of the cycle. Usually this is the Friday the week before.
 #' @param t1 file.path- path to the excel/csv file containing the tier 1 requests. This comes from Logs.
-#' @param t2 file.path- path to the excel/csv file contining the tier 2+ requests. This comes from Logs
+#' @param t2 file.path- path to the excel/csv file containing the tier 2+ requests. This comes from Logs
 #' @param order_v numeric/character- new version name
 #' @param load_from_previous logical. Determines whether previous tiering information (from the same date cycle) should be carried forward to a new version of the tiers and orders
 #' @param prev_v numeric/character- old version name
@@ -33,6 +33,9 @@ order_and_tiers = function(fold, date, t1, t2, order_v, load_from_previous, prev
 
   #delivery routes by zip
   routes = load_spreadsheet(file.path('./templates/routes.xlsx'))
+  
+  #default tier and type
+  tier_type_defaults = load_spreadsheet(file.path('./templates/order_tier_defaults.xlsx'))
 
   stopifnot(all(names(t2) %in% names(t1)))
 
@@ -115,31 +118,35 @@ order_and_tiers = function(fold, date, t1, t2, order_v, load_from_previous, prev
   orders[, requested := as.numeric(requested)]
 
   #create tiering file
-  tiers = orders[, .(wa_num, agency, address, zip, region, lnum = `_lnum`, type = "",
-                     newname = "", notes = "", current.tier = "",
-                     priority = "", logs_type, logs_tier)]
+  tiers = orders[, .(wa_num, agency, address, zip, region, lnum = `_lnum`, newname = "",
+                     notes = "", priority = "", logs_type, logs_tier)]
   tiers = unique(tiers)
 
   if(start_n != end_n){
     stop('WEBEOC PROBABLY FARTED DUPLICATE IDs AGAIN')
   }else{
 
-    ttt = unique(tiers[ ,.(wa_num, agency, address, zip, region, lnum = lnum, type = "", newname = "",
-                           notes = "", current.tier = "", priority = "", logs_lnum = lnum, logs_type, logs_tier)])
+    ttt = unique(tiers[ ,.(wa_num, agency, address, zip, region, lnum = lnum, newname = "",
+                           notes = "", priority = "", logs_lnum = lnum, logs_type, logs_tier)])
 
     ttt[,lnum := gsub('/', ', ', lnum, fixed = T)]
     #check previous week
     prev_ids = trimws(unlist(strsplit(previous_week[, order_ids], split = ',', fixed = T)), whitespace = '[\\h\\v]')
     dupes = intersect(ttt[, wa_num], prev_ids)
 
+    #join default tiers and types
+    ttt = merge(ttt, tier_type_defaults, all.x = T, by="logs_type")
+    
     if(load_from_previous){
       old = load_spreadsheet(file.path(fold, paste0('tiers_', cycle_mo, cycle_day, '_', prev_v, '.xlsx')))
-
+      
       ttt = rbind(old, ttt[!wa_num %in% old[, wa_num]])
     }
 
     write.xlsx(orders, file.path(fold, paste0('order_list_', cycle_mo, cycle_day,'_', order_v, '.xlsx')))
-
+    
+    #tier_cols = c('wa_num', 'agency', 'address', 'zip', 'region', 'lnum', 'type', 'newname', 'notes', 'current.tier', 'priority', 'logs_lnum', 'logs_tier', 'logs_type')
+    
     write.xlsx(ttt, file.path(fold, paste0('tiers_', cycle_mo, cycle_day, '_', order_v, '.xlsx')))
     write.csv(ttt, file.path(fold, paste0('tiers_raw.csv')), row.names = F, na = "")
 
