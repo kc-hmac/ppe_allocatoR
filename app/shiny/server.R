@@ -94,26 +94,21 @@ server = function(input, output, session) {
   })
 
   #for the other inputs tab, copy the files to the new folder
-  observeEvent(input$linelist$datapath, {
+  observeEvent(input$cases$datapath, {
     req(cache$workdir)
-    linelist = input$linelist$datapath
-    linelist = load_spreadsheet(linelist)
-    setnames(linelist, tolower(names(linelist)))
-    linelist = linelist[, .(dbid, `cddb resident death`, `cddb resident hospitalized`,
-                            `cddb resident ill`, `res test pos`,`classification value`,`openclose`,`wdrs resident death`,`wdrs resident hospitalized`,`wdrs positive residents`)]
-    setnames(linelist, c('DBID', 'Res Cnt Death', 'Res Cnt Hsp', 'Res Cnt Sym', 'Res Test Pos', 'Classification Value', 'OpenClose', 'WDRS Res Cnt Death','WDRS Res Cnt Hsp','WDRS Res Test Pos'))
+    cases = input$cases$datapath
+    cases = load_spreadsheet(cases)
+    setnames(cases, tolower(names(cases)))
+    cases = cases [licensenumber != '']
+    cases = cases[, .(dbid, licensenumber, facility_name,facility_type, status, cases_last_2_weeks)]
+    setnames(cases, c('DBID', 'License Number', 'Facility Name', 'Facility Type', 'Status', 'Count'))
 
-    write.csv(linelist, row.names = F, file.path(cache$workdir, 'linelist.csv'))
+    write.csv(cases, row.names = F, file.path(cache$workdir, 'cases.csv'))
 
-    cache$other_inputs_text <- 'Updated linelist'
+    cache$other_inputs_text <- 'Updated cases'
 
   })
-  observeEvent(input$cw$datapath, {
-    req(cache$workdir)
-    file.copy(input$cw$datapath, file.path(cache$workdir, paste0('crosswalk.', file_ext(input$cw$datapath))))
-    cache$other_inputs_text <- 'Updated crosswalk'
 
-  })
   observeEvent(input$replacements$datapath, {
     req(cache$workdir)
     file.copy(input$replacements$datapath, file.path(cache$workdir, paste0('replacements.', file_ext(input$replacements$datapath))))

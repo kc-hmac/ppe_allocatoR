@@ -11,12 +11,12 @@
 #'
 
 # ppe = readd(ppe, cache = cache)
-load_ltcf_data <- function(ppe, ltcf_categories, residents, beds, cases, cw){
+load_ltcf_data <- function(ppe, ltcf_categories, residents, beds, cases){
 
   #load things
   residents = fix_ltcf_lnums(load_spreadsheet(residents), 'License.number', 'Facility.Name')
   cases_ltcf = load_spreadsheet(cases)
-  cw = fix_ltcf_lnums(load_spreadsheet(cw), 'LicenseNumber', 'FacilityName')
+  
   beds = fix_ltcf_lnums(load_spreadsheet(beds), 'LicenseNumber', 'FacilityName')
 
   bts = data.table(abbriv = c('AL', 'NF', 'AF'), type = c('Assisted Living Facility', 'Nursing Home', 'Adult Family Home'))
@@ -32,20 +32,10 @@ load_ltcf_data <- function(ppe, ltcf_categories, residents, beds, cases, cw){
   baddies = residents[, .N, lnum][N>1, lnum]
   if(length(baddies)>0) stop(paste0('lnum:agency relationship is not 1:1 for ', paste0(baddies, ', ')))
 
-  cases_ltcf = cases_ltcf[, .(DBID, OpenClose, res_dead = as.numeric(`Res Cnt Death`), res_hosp = as.numeric(`Res Cnt Hsp`),
-                              res_sym = as.numeric(`Res Cnt Sym`), res_pos = as.numeric(`Res Test Pos`),
-                              classif = `Classification Value`)]
-
-
-  cases_ltcf[, c('res_dead', 'res_sym', 'res_pos', 'res_hosp') := lapply(.SD, function(x) ifelse(is.na(x), 0, x)), .SDcols = c('res_dead', 'res_sym', 'res_pos', 'res_hosp')]
-  cases_ltcf[, here := ifelse(res_sym>res_pos, res_sym, res_pos)]
-  cases_ltcf[, left := ifelse(res_dead>res_hosp, res_dead, res_hosp)]
-  cases_ltcf[, cases := ifelse((here-left) > 0, here-left, 0)]
-  cases_ltcf[, res := res_sym + res_pos + res_hosp]
-  cases_ltcf = cases_ltcf[, .(cases = sum(cases)), by = .(DBID, OpenClose, classif, res)]
-  cases_ltcf = merge(cases_ltcf, cw, by = 'DBID')
-
-
+  #'License Number', 'Facility Name', 'Facility Type', 'Status', 'Count'
+  cases_ltcf = cases_ltcf[, .(License = `License Number`, Name = `Facility Name`, Type = 'Facility Type', Status, Count = as.numeric(Count))]
+  cases_ltcf = cases_ltcf[, .(cases = sum(Count)), by = .(License, Name, Type, Status)]
+  
   for(ag in unique(ppe[type %in% ltcf_categories, agency])){
     nums = unique(ppe[agency ==ag, lnum])
     if(length(nums)!=1 || all(is.na(nums))){
@@ -56,8 +46,7 @@ load_ltcf_data <- function(ppe, ltcf_categories, residents, beds, cases, cw){
 
     residents[lnum %in% nums, agency := ag]
     #beds[lnum %in% nums, agency := ag]
-    cases_ltcf[LicenseNumber %in% nums, agency := ag]
-
+    cases_ltcf[License %in% nums, agency := ag]
   }
 
   #check to make sure we have all the data
@@ -90,9 +79,8 @@ load_ltcf_data <- function(ppe, ltcf_categories, residents, beds, cases, cw){
     stopifnot(all(residents[,wt>0]))
 
     #capture the cases
-    cases_ltcf = cases_ltcf[!is.na(agency), .(cases = sum(cases)), by = .(agency,OpenClose,classif)]
-    # cases_ltcf = cases_ltcf[cases>0 & OpenClose == 'Open Case']
-    cases_ltcf = cases_ltcf[cases>0 & OpenClose == 'Open Case' & classif == 'Confirmed']
+    cases_ltcf = cases_ltcf[!is.na(agency), .(cases = sum(cases)), by = .(agency,Status,License)]
+    cases_ltcf = cases_ltcf[cases>0 & Status == 'Active' & License != '']
 
     residents = merge(residents, cases_ltcf, all.x = T, by = 'agency')
 

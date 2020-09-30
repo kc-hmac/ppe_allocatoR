@@ -75,9 +75,9 @@ run_allocations_drake <- function(
   inv_fp = file.path(fold, 'inv', paste0('inventory_',cycle_mo, cycle_day, '_', inv_v,'.csv'))
   hosp = file.path(fold, 'hospital_data.csv')
   residents <- file.path('templates', 'ltcf_long_list.xlsx')
-  cases = file.path(fold, 'linelist.csv')
+  cases = file.path(fold, 'cases.csv')
   beds <- file.path('templates', 'ltcf_licensed_comprehensive.csv')
-  cw = file.path(fold, 'crosswalk.csv')
+  
   acrciq <- file.path(fold, 'acrciq.xlsx')
   if(!file.exists(acrciq)) acrciq <- file.path(fold, 'acrciq.csv')
   chgs <- file.path(fold, 'chgs.xlsx')
@@ -125,7 +125,7 @@ run_allocations_drake <- function(
     hospital = target(load_hospital_data(file_in(!!hosp), !!hosp_supply)),
 
     #load and format ltcf data
-    ltcf = target(load_ltcf_data(ppe, !!ltcf_categories, file_in(!!residents), file_in(!!beds), file_in(!!cases), file_in(!!cw))),
+    ltcf = target(load_ltcf_data(ppe, !!ltcf_categories, file_in(!!residents), file_in(!!beds), file_in(!!cases))),
 
     #create weights
     wt = target(create_weights(ppe, hospital, ltcf, file_in(!!acrciq), file_in(!!chgs))),

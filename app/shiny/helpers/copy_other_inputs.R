@@ -10,19 +10,17 @@ copy_other_inputs <- function(fold, linelist, crosswalk, replace, acrciq, chgs, 
   stopifnot('cache folder does not exist' = dir.exists(cache_folder))
 
   #Copy and standardize naming for misc files
-  file.copy(crosswalk, file.path(fold, paste0('crosswalk.', file_ext(crosswalk))))
   file.copy(replace, file.path(fold, paste0('replacements.', file_ext(replace))))
   file.copy(acrciq, file.path(fold, paste0('acrciq.', file_ext(acrciq))))
   file.copy(chgs, file.path(fold, paste0('chgs.', file_ext(chgs))))
 
   #the line list can sometimes have sensitive data so this to reduce the chance of data leakage
-  linelist = load_spreadsheet(linelist)
-  setnames(linelist, tolower(names(linelist)))
-  linelist = linelist[, .(dbid, `cddb resident death`, `cddb resident hospitalized`,
-                 `cddb resident ill`, `res test pos`,`classification value`,`openclose`,`wdrs resident death`,`wdrs resident hospitalized`,`wdrs positive residents`)]
-  setnames(linelist, c('DBID', 'Res Cnt Death', 'Res Cnt Hsp', 'Res Cnt Sym', 'Res Test Pos', 'Classification Value', 'OpenClose', 'WDRS Res Cnt Death','WDRS Res Cnt Hsp','WDRS Res Test Pos'))
-
-  write.csv(linelist, row.names = F, file.path(fold, 'linelist.csv'))
+  cases = load_spreadsheet(cases)
+  setnames(cases, tolower(names(cases)))
+  cases = cases[, .(dbid, licensenumber, facility_name,facility_type, status, cases_last_2_weeks)]
+  cases = cases [licensenumber != '']
+  setnames(cases, c('DBID', 'License Number', 'Facility Name', 'Facility Type', 'Status', 'Count'))
+  write.csv(linelist, row.names = F, file.path(fold, 'cases.csv'))
 
   #make a little csv that contains where the path will be.
   write.csv(data.frame(cache_folder_path = cache_folder), row.names = F, file.path(fold, 'cache_loc.csv'))
