@@ -143,9 +143,10 @@ order_and_tiers = function(fold, date, t1, t2, order_v, load_from_previous, prev
       ttt = rbind(old, ttt[!wa_num %in% old[, wa_num]])
     }
 
-    write.xlsx(orders, file.path(fold, paste0('order_list_', cycle_mo, cycle_day,'_', order_v, '.xlsx')))
+    # don't need region in Order List as they are reviewed/updated in Tiers
+    orders = select(orders, -c('region'))
     
-    #tier_cols = c('wa_num', 'agency', 'address', 'zip', 'region', 'lnum', 'type', 'newname', 'notes', 'current.tier', 'priority', 'logs_lnum', 'logs_tier', 'logs_type')
+    write.xlsx(orders, file.path(fold, paste0('order_list_', cycle_mo, cycle_day,'_', order_v, '.xlsx')))
     
     write.xlsx(ttt, file.path(fold, paste0('tiers_', cycle_mo, cycle_day, '_', order_v, '.xlsx')))
     write.csv(ttt, file.path(fold, paste0('tiers_raw.csv')), row.names = F, na = "")

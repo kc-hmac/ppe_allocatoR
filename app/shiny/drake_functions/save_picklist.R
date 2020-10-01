@@ -40,7 +40,7 @@ save_picklist= function(pl, template, outpath, tiers =unique(pl$tier)){
       #write the matrix of items
       agency = this_pl$agency
       this_pl[, id := ""]
-      this_pl = melt(this_pl[, .SD, .SDcols = setdiff(names(this_pl), c('order_ids', 'agency', 'Address', 'Phone', 'POC', 'email', 'type', 'tier', 'priority'))], 
+      this_pl = melt(this_pl[, .SD, .SDcols = setdiff(names(this_pl), c('order_ids', 'agency', 'Address', 'Phone', 'POC', 'email', 'Region', 'type', 'tier', 'priority'))], 
                      id.vars = 'id', variable.factor = F, value.factor = F)
       this_pl = this_pl[value > 0]
       this_pl[, id:= substr(variable, 1, regexpr(':', variable, fixed = T)-1)]

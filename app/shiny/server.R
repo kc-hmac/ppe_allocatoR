@@ -80,16 +80,15 @@ server = function(input, output, session) {
     })
   })
 
-  #Create routes
-  output$routes_o <- renderText({
-    req(input$routes_go)
+  #Add reporting data
+  output$reports_o <- renderText({
+    req(input$reports_go)
     isolate({
       if(is.null(cache$workdir)) return('Please load working directory options on the `Global Options tab` and try again')
-      create_routes(fold = cache$workdir,
+      add_reporting_data(fold = cache$workdir,
                     date = input$cycle_date,
-                    cycle_version = input$routes_cycle_v,
-                    ordersandtiers_version = input$routes_ot_v,
-                    cache_routes_loc = input$cache_routes_folder)
+                    cycle_version = input$reports_cycle_v,
+                    ordersandtiers_version = input$reports_ot_v)
     })
   })
 
