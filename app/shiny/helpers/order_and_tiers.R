@@ -148,6 +148,9 @@ order_and_tiers = function(fold, date, t1, t2, order_v, load_from_previous, prev
     
     write.xlsx(orders, file.path(fold, paste0('order_list_', cycle_mo, cycle_day,'_', order_v, '.xlsx')))
     
+    # reset field order
+    ttt = select(ttt, c('wa_num','agency','address','zip','region','lnum','type','newname','notes','current.tier','priority','logs_lnum','logs_tier','logs_type'))
+    
     write.xlsx(ttt, file.path(fold, paste0('tiers_', cycle_mo, cycle_day, '_', order_v, '.xlsx')))
     write.csv(ttt, file.path(fold, paste0('tiers_raw.csv')), row.names = F, na = "")
 
