@@ -77,7 +77,7 @@ run_allocations_drake <- function(
   residents <- file.path('templates', 'ltcf_long_list.xlsx')
   cases = file.path(fold, 'cases.csv')
   beds <- file.path('templates', 'ltcf_licensed_comprehensive.csv')
-  
+
   acrciq <- file.path(fold, 'acrciq.xlsx')
   if(!file.exists(acrciq)) acrciq <- file.path(fold, 'acrciq.csv')
   chgs <- file.path(fold, 'chgs.xlsx')
@@ -168,7 +168,7 @@ run_allocations_drake <- function(
 
     #by regional - TODO: add region to wide picklist from the tier sheet (currently generating as separate tab step)
     out_xl_region = target(save_region_picklist(pl_wide, !!template, file_out(a), r), transform = map(r = !!regions, a = !!out_excel_by_region, .id = r)),
-    
+
     #write out weights
     out_weights = target(write.csv(wt, file_out(!!oot_weights), row.names = F)),
 
@@ -191,4 +191,20 @@ run_allocations_drake <- function(
 
   make(plan, cache = cache)
 
+  # files used in next cycle
+  next_cycle_fp = file.path(fold, 'next_cycle_files')
+  template_dropshipment <- file.path('templates', 'template_dropshipment.xlsx')
+  template_orderadditions <- file.path('templates', 'order_additions.xlsx')
+  next_cycle_files <- list(inv_fp,allords,acrciq,chgs,donotallocate,replacement_file,template_dropshipment,template_orderadditions)
+
+  # delete prior directory/files
+  if (dir.exists(next_cycle_fp)){
+    unlink(next_cycle_fp,recursive = T, force = T)
+  }
+
+  # create directory and copy latest files
+  dir.create(next_cycle_fp)
+  copy_files = lapply(next_cycle_files, function(x) file.copy(x, next_cycle_fp))
+
+  print('Allocations Complete!')
 }
