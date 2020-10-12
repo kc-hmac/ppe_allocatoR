@@ -19,7 +19,7 @@ sidebar <- dashboardSidebar(
              startExpanded = TRUE
              ),
     menuItem('Make Allocations',
-             #menuSubItem('Validate Inputs', tabName = 'valid'),
+             menuSubItem('Validate Inputs', tabName = 'valid'),
              menuSubItem('Allocate', tabName = 'allocate'),
              startExpanded = TRUE
              ),
@@ -80,7 +80,13 @@ body <- dashboardBody(
             fileInput('noallocate', 'Do not allocate agency-item list', width = input_width, placeholder = 'donotallocate.xlsx'),
             #actionButton('oi_go', 'Update/Upload'),
             textOutput('oi_o')),
-    tabItem(tabName = 'valid', h2('Validate Inputs')),
+    tabItem(tabName = 'valid',
+            h2('Validate Inputs'),
+            h3('QA should be on updated item classification file and tier workbook'),
+            textInput('qa_ot_v', 'Orders & Tiers Version', 1),
+            actionButton('qa_go', 'QA Orders!'),
+            textOutput('qa_o')
+            ),
     tabItem(tabName = 'allocate',
             h2('Run Allocations'),
             textInput('cycle_v', 'Cycle Version', 1),

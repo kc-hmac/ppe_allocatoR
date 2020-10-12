@@ -134,6 +134,16 @@ server = function(input, output, session) {
     cache$other_inputs_text <- 'Updated Do Not Allocate Agency-Item pairs'
   })
   output$oi_o <- renderText(cache$other_inputs_text)
+  
+  #Create QA file for orders
+  output$qa_o <- renderText({
+    req(input$qa_ot_v, input$qa_go)
+    isolate({
+      if(is.null(cache$workdir)) return('Please load working directory options on the `Global Options tab` and try again')
+      qa_orders(cache$workdir, input$cycle_date, input$qa_ot_v)
+    })
+  })
+  
   #run allocations
   output$alloc_response <- renderText({
     
