@@ -98,10 +98,14 @@ server = function(input, output, session) {
     cases = input$cases$datapath
     cases = load_spreadsheet(cases)
     setnames(cases, tolower(names(cases)))
-    cases = cases [licensenumber != '']
-    cases = cases[, .(dbid, licensenumber, facility_name,facility_type, status, cases_last_2_weeks)]
-    setnames(cases, c('DBID', 'License Number', 'Facility Name', 'Facility Type', 'Status', 'Count'))
-
+    # when count exist..
+    # cases = cases[, .(dbid, licensenumber, facility_name,facility_type, address, city, status, cases_last_2_weeks)]
+    # setnames(cases, c('DBID', 'License Number', 'Facility Name', 'Facility Type', 'Address', 'City', 'Status', 'Count'))
+    cases = cases[, .(dbid, licensenumber, facility_name,facility_type, address, city, status)]
+    setnames(cases, c('DBID', 'License Number', 'Facility Name', 'Facility Type', 'Address', 'City', 'Status'))
+    cases$Count = 0
+    # for now set count to 2 if active investigation
+    cases[Status =='Active', Count := 2]
     write.csv(cases, row.names = F, file.path(cache$workdir, 'cases.csv'))
 
     cache$other_inputs_text <- 'Updated cases'
