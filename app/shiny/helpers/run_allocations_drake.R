@@ -195,7 +195,7 @@ run_allocations_drake <- function(
   next_cycle_fp = file.path(fold, 'next_cycle_files')
   template_dropshipment <- file.path('templates', 'template_dropshipment.xlsx')
   template_orderadditions <- file.path('templates', 'order_additions.xlsx')
-  next_cycle_files <- list(inv_fp,allords,acrciq,chgs,donotallocate,replacement_file,template_dropshipment,template_orderadditions)
+  next_cycle_files <- list(inv_fp,allords,acrciq,chgs,donotallocate,item_class,replacement_file,template_dropshipment,template_orderadditions)
 
   # delete prior directory/files
   if (dir.exists(next_cycle_fp)){
