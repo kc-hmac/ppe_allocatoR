@@ -77,6 +77,18 @@ server = function(input, output, session) {
     })
   })
   
+  #Create routes
+  output$routes_o <- renderText({
+    req(input$routes_go)
+    isolate({
+      if(is.null(cache$workdir)) return('Please load working directory options on the `Global Options tab` and try again')
+      create_routes(fold = cache$workdir,
+                    date = input$cycle_date,
+                    cycle_version = input$routes_cycle_v,
+                    ordersandtiers_version = input$routes_ot_v)
+    })
+  })
+  
   #for the other inputs tab, copy the files to the new folder
   observeEvent(input$linelist$datapath, {
     req(cache$workdir)

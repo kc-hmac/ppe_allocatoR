@@ -23,6 +23,9 @@ sidebar <- dashboardSidebar(
              menuSubItem('Allocate', tabName = 'allocate'),
              startExpanded = TRUE
              ),
+    menuItem('Routes',
+             menuSubItem('Create route picklists', tabName = 'routes'),
+             startExpanded = TRUE),
     menuItem('Diagnostics/Notes',
              menuSubItem('Session Info', tabName = 'sessionInfo'),
              startExpanded = TRUE)
@@ -94,6 +97,13 @@ body <- dashboardBody(
             textInput('cache_folder', 'Directory to drake cache', value = defaults[variable == 'cache_folder', value]),
             actionButton('make_allocs', "Run Allocations"),
             textOutput('alloc_response')
+            ),
+    tabItem(tabName = 'routes',
+            h2('Create Regional Picklists'),
+            textInput('routes_cycle_v', 'Cycle Version'),
+            textInput('routes_ot_v', 'Orders & Tiers Version'),
+            actionButton('routes_go', 'Create picklists by Route'),
+            textOutput('routes_o')
             ),
     tabItem(tabName = 'extras',
             verbatimTextOutput('sesh_deets'))

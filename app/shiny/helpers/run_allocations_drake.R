@@ -63,6 +63,9 @@ run_allocations_drake <- function(
   #governing variables
   ltcf_categories = c('snf + alf', 'afh', 'supported living', 'alf', 'snf', 'ltcf')
   
+  #routes by region
+  regions = c('north_seattle_shoreline','bellevue','sw_king_county','east_king_county','renton','south_seattle_downtown','se_king_county')
+  
   #Inputs! file paths
   template = file.path('./templates/template_order_87.xlsx')
   tiering = file.path(fold, paste0('tiers_', cycle_mo, cycle_day, '_', ot_v, '.xlsx'))
@@ -91,6 +94,7 @@ run_allocations_drake <- function(
   lefts_sum = file.path(output, paste0('leftovers_sum', suffix,'.csv'))
   oot_excel = file.path(output, paste0('picklist', suffix,'.xlsx'))
   out_excel_by_tier = file.path(output, paste0('picklist', suffix,'_tier_', runtiers, '.xlsx'))
+  # out_excel_by_region = file.path(output, paste0('picklist', suffix,'_region_', regions, '.xlsx'))
   oot_wide = file.path(output, paste0('picklist_wide', suffix,'.csv'))
   oot_dr = file.path(output, paste0('distribution_report', suffix,'.csv'))
   oot_no_1 = file.path(output, paste0('no_allocation_wanum', suffix,'.csv'))
@@ -155,7 +159,11 @@ run_allocations_drake <- function(
     #write to excel
     out_excel = target(save_picklist(pl_wide, !!template, file_out(!!oot_excel))),
     
+    # by tier
     out_xl_tier = target(save_picklist(pl_wide, !!template, file_out(a), t), transform = map(t = !!runtiers, a = !!out_excel_by_tier, .id = t)),
+    
+    #by regional - TODO: add region to wide picklist from the tier sheet (currently generating as separate tab step)
+    # out_xl_region = target(save_region_picklist(pl_wide, !!template, file_out(a), r), transform = map(r = !!regions, a = !!out_excel_by_region, .id = r)),
     
     #write out wide picklist
     out_wide = target(write.csv(pl_wide, file_out(!!oot_wide), row.names = F)),

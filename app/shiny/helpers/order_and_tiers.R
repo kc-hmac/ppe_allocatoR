@@ -27,6 +27,8 @@ order_and_tiers = function(fold, date, t1, t2, order_v, load_from_previous, prev
   previous_week = load_spreadsheet(previous_week)
   if(!missing(add_fp) && !is.null(add_fp)) add = load_spreadsheet(add_fp)
   
+  #delivery routes by zip
+  routes = load_spreadsheet(file.path('./templates/routes.xlsx'))
   
   stopifnot(all(names(t2) %in% names(t1)))
   
@@ -42,7 +44,6 @@ order_and_tiers = function(fold, date, t1, t2, order_v, load_from_previous, prev
     orders = rbind(orders, add, fill = TRUE)
   }
   
-  
   #standardize orders
   setnames(orders, c("King.County.Tracking.Number", "Agency.Name", "Facility.Type", 
                      "License./.ID", "Item.Requested.(Paste.item.requested.from.thecity,.tribal.resource.request.form.here)", 
@@ -50,6 +51,7 @@ order_and_tiers = function(fold, date, t1, t2, order_v, load_from_previous, prev
                      "Tier.Number", "POC", "POC.Email", "POCPhone", "Delivery.Address", "Requestor.Email"),
            c('wa_num', 'agency', 'logs_type', '_lnum', 'item_requested', 'requested', 'logs_tier', 'poc', 'email', 'phone', 'address', 'email2')
   )
+  
   orders = orders[, .(wa_num, agency, logs_type, `_lnum`, item_requested, requested, logs_tier)]
   orders[, wa_num := trimws(wa_num, whitespace = "[\\h\\v]")]
   
@@ -60,6 +62,11 @@ order_and_tiers = function(fold, date, t1, t2, order_v, load_from_previous, prev
   dump = dump[, .(wa_num, address, email = ReqSiteEmail, phone = ReqSitePhone, POC = ReqSitePOC, status = ReqStatus)]
   dump[, address := gsub('\t', "", address, fixed = T)]
   dump = unique(dump)
+  
+  # extract zip
+  # should clean up address more (trailing spaces)
+  dump[, zip:= str_extract(address, "(?<= )\\d{4,5}(?=\\n|$)")]
+  dump = merge(dump, routes, all.x = T, by = 'zip')
   
   if(!all(unique(orders[, wa_num]) %in% dump[, wa_num])){
     misnums = setdiff(unique(orders[, wa_num]), dump[,wa_num])
@@ -97,16 +104,14 @@ order_and_tiers = function(fold, date, t1, t2, order_v, load_from_previous, prev
     stop(end_n - start_n)
   }
   
-  
   #remove stupid characters from item names
   orders[, item_requested := gsub('"', "", item_requested, fixed = T)]
-  
   
   #force numerics
   orders[, requested := as.numeric(requested)]
   
   #create tiering file
-  tiers = orders[, .(wa_num, agency, address, lnum = `_lnum`, type = "",
+  tiers = orders[, .(wa_num, agency, address, zip, region, lnum = `_lnum`, type = "",
                      newname = "", notes = "", current.tier = "",
                      priority = "", logs_type, logs_tier)]
   tiers = unique(tiers)
@@ -115,7 +120,7 @@ order_and_tiers = function(fold, date, t1, t2, order_v, load_from_previous, prev
     stop('WEBEOC PROBABLY FARTED DUPLICATE IDs AGAIN')
   }else{
     
-    ttt = unique(tiers[ ,.(wa_num, agency, address, lnum = lnum, type = "", newname = "", 
+    ttt = unique(tiers[ ,.(wa_num, agency, address, zip, region, lnum = lnum, type = "", newname = "", 
                            notes = "", current.tier = "", priority = "", logs_lnum = lnum, logs_type, logs_tier)])
     
     ttt[,lnum := gsub('/', ', ', lnum, fixed = T)]
