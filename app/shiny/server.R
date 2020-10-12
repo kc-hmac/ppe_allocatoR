@@ -83,8 +83,8 @@ server = function(input, output, session) {
     linelist = input$linelist$datapath
     linelist = load_spreadsheet(linelist)
     setnames(linelist, tolower(names(linelist)))
-    linelist = linelist[, .(dbid, `sum of cddb resident death`, `sum of cddb resident hospitalized`,
-                            `sum of cddb resident ill`, `res test pos`,`classification value`)]
+    linelist = linelist[, .(dbid, `cddb resident death`, `cddb resident hospitalized`,
+                            `cddb resident ill`, `res test pos`,`classification value`)]
     setnames(linelist, c('DBID', 'Res Cnt Death', 'Res Cnt Hsp', 'Res Cnt Sym', 'Res Test Pos', 'Classification Value'))
     
     write.csv(linelist, row.names = F, file.path(cache$workdir, 'linelist.csv'))
