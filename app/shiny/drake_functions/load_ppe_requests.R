@@ -13,9 +13,11 @@
 load_ppe_requests = function(orders, item_class, tiering, sized_items, ad_only = FALSE){
 
   ppe = (load_spreadsheet(orders))
+
   if('POC' %in% names(ppe)) setnames(ppe, 'POC', 'poc')
   items = load_spreadsheet(item_class)
   tiers = load_spreadsheet(tiering)
+
   ppe[, wa_num := trimws(wa_num, whitespace = "[\\h\\v]")]
   tiers[, wa_num := trimws(wa_num, whitespace = "[\\h\\v]")]
   
@@ -27,9 +29,11 @@ load_ppe_requests = function(orders, item_class, tiering, sized_items, ad_only =
   
   setnames(items, 'item', 'item_requested')
   ppe = ppe[!is.na(item_requested)]
-  
   ppe[, item_requested := trimws(item_requested, whitespace = "[\\h\\v]")]
 
+  ppe = ppe[, requested := as.numeric(requested)]
+  ppe = ppe[!is.na(requested),]
+  
   items = unique(items)
   
   item_maps = items[, .N, item_requested]
@@ -66,11 +70,13 @@ load_ppe_requests = function(orders, item_class, tiering, sized_items, ad_only =
   #make the tiers unique
   #tiers[, agency := NULL]
   tiers[!is.na(newname) & newname != "", agency := newname]
-  tiers = unique(tiers[, .(wa_num, agency, address, lnum, type, current.tier, priority)])
+
+  tiers = unique(tiers[, .(wa_num, agency, address, lnum, type, current.tier, priority, region)])
   ppe[, agency := NULL] #changing this up to fix excel drag errors in a lazy way
   
   stopifnot('Missing classifications in tier sheet' = all(!is.na(tiers[, agency]) & !tiers[, agency] %in% ''))
   stopifnot('Missing tiering in tier sheet' = all(!is.na(tiers[, current.tier]) & !tiers[, current.tier] %in% ''))
+  stopifnot('Missing region in tier sheet' = all(!is.na(tiers[, region]) & !tiers[, region] %in% ''))
   
   tiers_by_wa = tiers[, .N, .(wa_num)]
   
@@ -82,7 +88,7 @@ load_ppe_requests = function(orders, item_class, tiering, sized_items, ad_only =
   
   ppe_st = nrow(ppe)
   ppe = merge(ppe, tiers, all.x = T, by = c('wa_num'))
-  
+
   stopifnot('Likely duplicate agencies per wa num in tiers' = (ppe_st) == nrow(ppe))
   
   ppe[, type := tolower(type)]
@@ -91,8 +97,8 @@ load_ppe_requests = function(orders, item_class, tiering, sized_items, ad_only =
   
   ppe[, order_ids := paste(unique(wa_num), collapse = ', '), 
       by = .(type, current.tier, agency)]
-  
-  ads = unique(ppe[, .(wa_num, agency, poc, phone, address, email)])
+
+  ads = unique(ppe[, .(wa_num, agency, poc, phone, address, email, region)])
   if(ad_only){
     return(ads)
   }
@@ -118,8 +124,6 @@ load_ppe_requests = function(orders, item_class, tiering, sized_items, ad_only =
   
   #remove requests for 0 or less items
   ppe = ppe[requested>0]
-  
   return(ppe)
-  
   
 }

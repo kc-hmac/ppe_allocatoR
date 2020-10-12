@@ -7,6 +7,8 @@ library('tools')
 library('xml2')
 library('readxl')
 library('drake')
+library('stringr')
+library('dplyr')
 
 
 print(getwd())
