@@ -85,7 +85,8 @@ server = function(input, output, session) {
       create_routes(fold = cache$workdir,
                     date = input$cycle_date,
                     cycle_version = input$routes_cycle_v,
-                    ordersandtiers_version = input$routes_ot_v)
+                    ordersandtiers_version = input$routes_ot_v,
+                    cache_routes_loc = input$cache_routes_folder)
     })
   })
   

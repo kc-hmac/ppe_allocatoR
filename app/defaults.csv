@@ -1,6 +1,7 @@
 variable,value
 base_output,C:/Users/alibrown/Documents/ppe
 cache_folder,C:/Users/alibrown/Documents/ppe_runs
+cache_routes_folder,C:/Users/alibrown/Documents/ppe_runs_routes
 runtiers,0; 1; 2; 3; 1.5; 1.75
 sized_items,gowns; non-latex gloves; scrub pants; scrub pants; latex gloves; coveralls
 do_not_distribute,
