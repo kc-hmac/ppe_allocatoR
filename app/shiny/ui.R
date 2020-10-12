@@ -23,8 +23,8 @@ sidebar <- dashboardSidebar(
              menuSubItem('Allocate', tabName = 'allocate'),
              startExpanded = TRUE
              ),
-    menuItem('Routes',
-             menuSubItem('Create route picklists', tabName = 'routes'),
+    menuItem('Reports',
+             menuSubItem('Add Allocation data', tabName = 'reports'),
              startExpanded = TRUE),
     menuItem('Diagnostics/Notes',
              menuSubItem('Session Info', tabName = 'sessionInfo'),
@@ -72,8 +72,8 @@ body <- dashboardBody(
             textOutput('ic_o')),
     tabItem(tabName = 'other_inputs',
             h2('Other Inputs'),
-            fileInput('linelist', 'CDEPI Linelist', width = input_width, placeholder = 'Linelist_Facility_data.csv'),
-            fileInput('cw', 'CDEPI LTCF Crosswalk', width = input_width, placeholder = 'DBID-DSHS Crosswalk  29-Jul-2020.csv'),
+            p('Note: Open & Confirmed Cases file under development and requires manual addition of cases_last_2_weeks column and licenses for Supported Living and any missing LTCF values.'),
+            fileInput('cases', 'Open & Confirmed Cases', width = input_width_wide, placeholder = 'PPE Distribution - Open and Confirmed Investigations.csv'),
             fileInput('replacements', 'Replacement Instructions', width = input_width, placeholder = 'replacements.xlsx'),
             fileInput('acrciq', 'ACRC/IQ Occupancy', width = input_width, placeholder = 'acrciq.xlsx'),
             fileInput('chgs', 'PPE Changes by type', width = input_width, placeholder = 'chgs.xlsx'),
@@ -104,13 +104,13 @@ body <- dashboardBody(
             actionButton('make_allocs', "Run Allocations"),
             textOutput('alloc_response')
             ),
-    tabItem(tabName = 'routes',
-            h2('Create Regional Picklists'),
-            textInput('routes_cycle_v', 'Cycle Version'),
-            textInput('routes_ot_v', 'Orders & Tiers Version'),
-            textInput('cache_routes_folder', 'Directory to drake routes cache', value = defaults[variable == 'cache_routes_folder', value]),
-            actionButton('routes_go', 'Create picklists by Route'),
-            textOutput('routes_o')
+    tabItem(tabName = 'reports',
+            h2('Add current cycle allocations to reporting files'),
+            p('Note: placeholder'),
+            textInput('reports_cycle_v', 'Cycle Version'),
+            textInput('reports_ot_v', 'Orders & Tiers Version'),
+            # actionButton('reports_go', 'Run reporting scripts!'),
+            textOutput('reports_o')
             ),
     tabItem(tabName = 'extras',
             verbatimTextOutput('sesh_deets'))

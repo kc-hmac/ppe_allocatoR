@@ -75,9 +75,9 @@ run_allocations_drake <- function(
   inv_fp = file.path(fold, 'inv', paste0('inventory_',cycle_mo, cycle_day, '_', inv_v,'.csv'))
   hosp = file.path(fold, 'hospital_data.csv')
   residents <- file.path('templates', 'ltcf_long_list.xlsx')
-  cases = file.path(fold, 'linelist.csv')
+  cases = file.path(fold, 'cases.csv')
   beds <- file.path('templates', 'ltcf_licensed_comprehensive.csv')
-  cw = file.path(fold, 'crosswalk.csv')
+  
   acrciq <- file.path(fold, 'acrciq.xlsx')
   if(!file.exists(acrciq)) acrciq <- file.path(fold, 'acrciq.csv')
   chgs <- file.path(fold, 'chgs.xlsx')
@@ -94,7 +94,7 @@ run_allocations_drake <- function(
   lefts_sum = file.path(output, paste0('leftovers_sum', suffix,'.csv'))
   oot_excel = file.path(output, paste0('picklist', suffix,'.xlsx'))
   out_excel_by_tier = file.path(output, paste0('picklist', suffix,'_tier_', runtiers, '.xlsx'))
-  # out_excel_by_region = file.path(output, paste0('picklist', suffix,'_region_', regions, '.xlsx'))
+  out_excel_by_region = file.path(output, paste0('picklist', suffix,'_region_', regions, '.xlsx'))
   oot_wide = file.path(output, paste0('picklist_wide', suffix,'.csv'))
   oot_dr = file.path(output, paste0('distribution_report', suffix,'.csv'))
   oot_no_1 = file.path(output, paste0('no_allocation_wanum', suffix,'.csv'))
@@ -125,7 +125,7 @@ run_allocations_drake <- function(
     hospital = target(load_hospital_data(file_in(!!hosp), !!hosp_supply)),
 
     #load and format ltcf data
-    ltcf = target(load_ltcf_data(ppe, !!ltcf_categories, file_in(!!residents), file_in(!!beds), file_in(!!cases), file_in(!!cw))),
+    ltcf = target(load_ltcf_data(ppe, !!ltcf_categories, file_in(!!residents), file_in(!!beds), file_in(!!cases))),
 
     #create weights
     wt = target(create_weights(ppe, hospital, ltcf, file_in(!!acrciq), file_in(!!chgs))),
@@ -163,13 +163,13 @@ run_allocations_drake <- function(
     # by tier
     out_xl_tier = target(save_picklist(pl_wide, !!template, file_out(a), t), transform = map(t = !!runtiers, a = !!out_excel_by_tier, .id = t)),
 
-    #by regional - TODO: add region to wide picklist from the tier sheet (currently generating as separate tab step)
-    # out_xl_region = target(save_region_picklist(pl_wide, !!template, file_out(a), r), transform = map(r = !!regions, a = !!out_excel_by_region, .id = r)),
-
     #write out wide picklist
     out_wide = target(write.csv(pl_wide, file_out(!!oot_wide), row.names = F)),
 
-    #write out wide picklist
+    #by regional - TODO: add region to wide picklist from the tier sheet (currently generating as separate tab step)
+    out_xl_region = target(save_region_picklist(pl_wide, !!template, file_out(a), r), transform = map(r = !!regions, a = !!out_excel_by_region, .id = r)),
+    
+    #write out weights
     out_weights = target(write.csv(wt, file_out(!!oot_weights), row.names = F)),
 
     #write out distribution report
