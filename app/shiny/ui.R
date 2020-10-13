@@ -18,8 +18,12 @@ sidebar <- dashboardSidebar(
              menuSubItem('Other inputs', tabName = 'other_inputs'),
              startExpanded = TRUE
              ),
+    menuItem('Validate Inputs',
+            menuSubItem('Validate Orders', tabName = 'valid'),
+            menuSubItem('Validate LTCF Cases', tabName = 'valid_ltcf'),
+            startExpanded = TRUE
+            ),
     menuItem('Make Allocations',
-             menuSubItem('Validate Inputs', tabName = 'valid'),
              menuSubItem('Allocate', tabName = 'allocate'),
              startExpanded = TRUE
              ),
@@ -87,6 +91,14 @@ body <- dashboardBody(
             actionButton('qa_go', 'QA Orders!'),
             textOutput('qa_o')
             ),
+    tabItem(tabName = 'valid_ltcf',
+            h2('Validate Inputs'),
+            h3('QA should be on updated after tier workbook completed'),
+            textInput('qa_ltcf_ot_v', 'Orders & Tiers Version', 1),
+            fileInput('qa_ltcf_cases', 'Open & Confirmed Investigations', width = input_width, placeholder = 'PPE Distribution - Open and Confirmed Investigations.csv'),
+            actionButton('qa_ltcf_go', 'QA LTCFs!'),
+            textOutput('qa_ltcf_o')
+    ),
     tabItem(tabName = 'allocate',
             h2('Run Allocations'),
             textInput('cycle_v', 'Cycle Version', 1),
