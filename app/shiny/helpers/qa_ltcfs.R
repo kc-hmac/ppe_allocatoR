@@ -29,32 +29,7 @@ qa_ltcfs = function(fold,
   # capture warnings that may require manual fix
   warnings = list('None')
 
-  #Validation 1: Check that license and Tier 1 is present in Tier file
-  if(!all(!is.na(ltcfs[, lnum]))){
-    stop(paste('The following agencies classified as LTCF are missing license numbers:',
-               paste0(ltcfs[is.na(lnum), agency], collapse = ', ')))
-  }
-  #Validation 2: Check that Tier is present in Tier file
-  if(!all(!is.na(ltcfs[, current.tier]))){
-    stop(paste('The following agencies classified as LTCF are missing current tier:',
-               paste0(ltcfs[is.na(current.tier), agency], collapse = ', ')))
-  }
-
-  #Validation 3: Check for unique Licenses in Tier file - may be multiple orders and will need to work with Gavin to combine and close 1
-  license_counts = ltcfs %>%
-    group_by(lnum) %>%
-    summarize(license_nums=n())
-
-  dupes = filter(license_counts, license_nums>1)
-  if(nrow(dupes)){
-    stop(paste('The following licenses are duplicated in the TIers file:',
-               paste0(dupes$lnum, collapse = ', ')))
-  }
-
-  #Validation 4: Check that License # exists in 2 LTCF files used in Allocation Process
-  # TODO: extract licenses including multiples and check ltcf_licensed_comprehensive.csv and ltcf_long_list.xlsx
-
-  #Validation 5: Check Cases file to warn about missing licenses for Active LTCF/Supported Living entities that won't be joined to Tier file
+  #Validation 1: Check Cases file to warn about missing licenses for Active LTCF/Supported Living entities that won't be joined to Tier file
   case_missing_licenses = filter(investigations, status == "Active") %>%
     filter(facility_type == "LTCF" | facility_type =="SUPPORTED LIVING") %>%
     filter(is.na(LicenseNumber))
@@ -67,8 +42,6 @@ qa_ltcfs = function(fold,
   }
 
   #Output merged Tiers and Cases for manual/viz inspection
-
-  # TODO: other validations - check that lnum != "" when type == "ltcf", duped licenses
   ltcfs = filter(ltcfs, lnum !="")
 
   # join item classification to orders
