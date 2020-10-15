@@ -35,7 +35,7 @@ qa_ltcfs = function(fold,
     filter(is.na(LicenseNumber))
 
   if(nrow(case_missing_licenses)>0){
-    warning_message <- paste('The following agencies classified as LTCF or SUPPORTED LIVING are missing license numbers from Active Cases file:',
+    warning_message <- paste('The following agencies classified as LTCF or SUPPORTED LIVING are missing license numbers with currently Active Cases: ',
                              paste0(case_missing_licenses$facility_name, collapse = ', '))
     warning(warning_message)
     warnings[[1]] <- warning_message
@@ -48,10 +48,16 @@ qa_ltcfs = function(fold,
   ltcfs = setDT(merge(ltcfs, investigations, all = T, by.x = 'lnum', by.y = 'LicenseNumber'))
 
   # create a field with agency or name to use to sort for missing license in investigations file
+  ltcfs[, agency_or_facility_name := agency]
   ltcfs[is.na(agency), agency_or_facility_name := facility_name]
-  ltcfs[is.na(facility_name), agency_or_facility_name := agency]
 
-  qa_file = select(ltcfs, c(agency_or_facility_name,wa_num,lnum,agency,address.x,dbid,facility_name,address.y,facility_type,status,last_onset,notification_date,record_id,wdrs_obx))
+  qa_file = ltcfs %>%
+    mutate(cases_address = address.y, orders_address = address.x) %>%
+    select(agency_or_facility_name,wa_num,lnum,dbid,facility_type,status,last_onset,notification_date,agency,facility_name,orders_address,cases_address) %>%
+    arrange(agency_or_facility_name)
+
+  # sort
+  #qa_file = arrange(qa_file, agency_or_facility_name)
 
   #print full
   write.csv(qa_file,file = out_qa_order, row.names = F, na = '')
