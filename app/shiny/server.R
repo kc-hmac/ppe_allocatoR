@@ -145,6 +145,15 @@ server = function(input, output, session) {
     })
   })
 
+  #Create QA file for LTCFs
+  output$qa_ltcf_o <- renderText({
+    req(input$qa_ltcf_ot_v, input$qa_ltcf_go)
+    isolate({
+      if(is.null(cache$workdir)) return('Please load working directory options on the `Global Options tab` and try again')
+      qa_ltcfs(cache$workdir, input$cycle_date, input$qa_ltcf_ot_v, input$qa_ltcf_cases$datapath)
+    })
+  })
+
   #run allocations
   output$alloc_response <- renderText({
 
