@@ -11,7 +11,7 @@
 #' @param add_fp file.path- Optional. Path to the location of an excel/csv sheet specifying additional orders
 #' @details This function creates blank/new versions of the order and tiers files. Unless provided a new order_v, this function will overwrite existing work.
 #' @return A character string of the file path to the saved tiers file.
-order_and_tiers = function(fold, date, t1, t2, order_v, load_from_previous, prev_v,
+order_and_tiers = function(fold, date, t1, t2, t3, order_v, load_from_previous, prev_v,
                            previous_week, dump, add_fp){
 
   notes = list('None', 'None','None')
@@ -23,6 +23,7 @@ order_and_tiers = function(fold, date, t1, t2, order_v, load_from_previous, prev
   #Read in the orders
   t1 = load_spreadsheet(t1)
   t2 = load_spreadsheet(t2)
+  t3 = load_spreadsheet(t3)
 
   # dump = load_spreadsheet(dump)
   dump = read_excel(dump,sheet = 2)
@@ -38,8 +39,9 @@ order_and_tiers = function(fold, date, t1, t2, order_v, load_from_previous, prev
   tier_type_defaults = load_spreadsheet(file.path('./templates/order_tier_defaults.xlsx'))
 
   stopifnot(all(names(t2) %in% names(t1)))
+  stopifnot(all(names(t3) %in% names(t2)))
 
-  orders = rbind(t1, t2, fill = T)
+  orders = rbind(t1, t2, t3, fill = T)
 
   if(!nrow(orders) == nrow(unique(orders))){
     warning('Duplicate entries in the order sheets.')
