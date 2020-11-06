@@ -64,7 +64,7 @@ run_allocations_drake <- function(
   ltcf_categories = c('snf + alf', 'afh', 'supported living', 'alf', 'snf', 'ltcf')
 
   #routes by region
-  regions = c('north_seattle_shoreline','bellevue','sw_king_county','east_king_county','renton','south_seattle_downtown','se_king_county')
+  regions = c('north_seattle_shoreline','bellevue','sw_king_county','east_king_county','renton','south_seattle_downtown','se_king_county', 'vashon')
 
   #Inputs! file paths
   template = file.path('./templates/template_order_87.xlsx')

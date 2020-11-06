@@ -56,9 +56,6 @@ qa_ltcfs = function(fold,
     select(agency_or_facility_name,wa_num,lnum,dbid,facility_type,status,last_onset,notification_date,agency,facility_name,orders_address,cases_address) %>%
     arrange(agency_or_facility_name)
 
-  # sort
-  #qa_file = arrange(qa_file, agency_or_facility_name)
-
   #print full
   write.csv(qa_file,file = out_qa_order, row.names = F, na = '')
   print(paste0('QA file created ',out_qa_order, '; Warning: ',warnings[[1]]))
