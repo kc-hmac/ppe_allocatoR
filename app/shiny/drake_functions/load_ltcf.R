@@ -75,7 +75,10 @@ load_ltcf_data <- function(ppe, ltcf_categories, residents, beds, cases){
                  paste0(residents[is.na(wt), agency], collapse = ', ')))
     }
 
-    stopifnot(all(!is.na(residents[, wt])))
+    if(!all(residents[,wt>0])){
+      stop(paste('The following agencies have a 0 weight (either beds or resident counts are NA/0). If the long list has residents but no beds, make sure the provider county is King:',
+                 paste0(residents[wt == 0 , agency], collapse = ', ')))
+    }
     stopifnot(all(residents[,wt>0]))
 
     #capture the cases
