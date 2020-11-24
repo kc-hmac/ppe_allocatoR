@@ -30,7 +30,7 @@ load_ltcf_data <- function(ppe, ltcf_categories, residents, beds, cases){
   residents = merge(residents, beds[,.(lnum, nbeds, type)], by = c('lnum', 'type'), all = T)
 
   baddies = residents[, .N, lnum][N>1, lnum]
-  if(length(baddies)>0) stop(paste0('lnum:agency relationship is not 1:1 for ', paste0(baddies, ', ')))
+  if(length(baddies)>0) stop(paste0('Mismatch on ltcf_licensed_comprehensive and ltcf_long_list sheets. lnum:agency relationship is not 1:1 for ', paste0(baddies, ', ')))
 
   #'License Number', 'Facility Name', 'Facility Type', 'Status', 'Count'
   cases_ltcf = cases_ltcf[, .(License = `License Number`, Name = `Facility Name`, Type = 'Facility Type', Status, Count = as.numeric(Count))]

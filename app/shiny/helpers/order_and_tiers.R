@@ -23,7 +23,7 @@ order_and_tiers = function(fold, date, t1, t2, t3, order_v, load_from_previous, 
   #Read in the orders
   t1 = load_spreadsheet(t1)
   t2 = load_spreadsheet(t2)
-  t3 = load_spreadsheet(t3)
+  if(!missing(t3) && !is.null(t3)) t3 = load_spreadsheet(t3) #t3 is optional input
 
   # dump = load_spreadsheet(dump)
   dump = read_excel(dump,sheet = 2)
@@ -38,10 +38,15 @@ order_and_tiers = function(fold, date, t1, t2, t3, order_v, load_from_previous, 
   #default tier and type
   tier_type_defaults = load_spreadsheet(file.path('./templates/order_tier_defaults.xlsx'))
 
-  stopifnot(all(names(t2) %in% names(t1)))
-  stopifnot(all(names(t3) %in% names(t2)))
-
-  orders = rbind(t1, t2, t3, fill = T)
+  stopifnot(all(names(t2) %in% names(t1))) 
+  # process if there are orders from schools in a 3rd spreadsheet, otherwise just process tier 1&2 orders
+  if(!missing(t3) && !is.null(t3)){
+    t3 = load_spreadsheet(t3)
+    stopifnot(all(names(t3) %in% names(t1)))
+    orders = rbind(t1, t2, t3, fill = T)
+  } else {
+    orders = rbind(t1, t2, fill = T)
+  }
 
   if(!nrow(orders) == nrow(unique(orders))){
     warning('Duplicate entries in the order sheets.')
