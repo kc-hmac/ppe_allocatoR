@@ -41,7 +41,6 @@ order_and_tiers = function(fold, date, t1, t2, t3, order_v, load_from_previous, 
   stopifnot(all(names(t2) %in% names(t1))) 
   # process if there are orders from schools in a 3rd spreadsheet, otherwise just process tier 1&2 orders
   if(!missing(t3) && !is.null(t3)){
-    t3 = load_spreadsheet(t3)
     stopifnot(all(names(t3) %in% names(t1)))
     orders = rbind(t1, t2, t3, fill = T)
   } else {
