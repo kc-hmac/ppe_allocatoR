@@ -3,6 +3,8 @@
 #' @param date date- the date (usually derived from \code{\link{Sys.Date()}}) representing the closing day of the cycle. Usually this is the Friday the week before.
 #' @param t1 file.path- path to the excel/csv file containing the tier 1 requests. This comes from Logs.
 #' @param t2 file.path- path to the excel/csv file containing the tier 2+ requests. This comes from Logs
+#' @param schools file.path- path to the excel/csv file containing the requests from schools. This comes from Logs
+#' @param internal_cloth file.path- path to the excel/csv file containing the internal requests for cloth masks. This comes from Logs
 #' @param order_v numeric/character- new version name
 #' @param load_from_previous logical. Determines whether previous tiering information (from the same date cycle) should be carried forward to a new version of the tiers and orders
 #' @param prev_v numeric/character- old version name
@@ -11,7 +13,7 @@
 #' @param add_fp file.path- Optional. Path to the location of an excel/csv sheet specifying additional orders
 #' @details This function creates blank/new versions of the order and tiers files. Unless provided a new order_v, this function will overwrite existing work.
 #' @return A character string of the file path to the saved tiers file.
-order_and_tiers = function(fold, date, t1, t2, t3, order_v, load_from_previous, prev_v,
+order_and_tiers = function(fold, date, t1, t2, schools, internal_cloth, order_v, load_from_previous, prev_v,
                            previous_week, dump, add_fp){
 
   notes = list('None', 'None','None')
@@ -23,9 +25,10 @@ order_and_tiers = function(fold, date, t1, t2, t3, order_v, load_from_previous, 
   #Read in the orders
   t1 = load_spreadsheet(t1)
   t2 = load_spreadsheet(t2)
-  if(!missing(t3) && !is.null(t3)) t3 = load_spreadsheet(t3) #t3 is optional input
+  if(!missing(schools) && !is.null(schools)) schools = load_spreadsheet(schools) #optional input
+  if(!missing(internal_cloth) && !is.null(internal_cloth)) internal_cloth = load_spreadsheet(internal_cloth) #optional input
 
-  # dump = load_spreadsheet(dump)
+  # web eoc download file
   dump = read_excel(dump,sheet = 2)
   dump = setDT(dump)
 
@@ -39,14 +42,21 @@ order_and_tiers = function(fold, date, t1, t2, t3, order_v, load_from_previous, 
   tier_type_defaults = load_spreadsheet(file.path('./templates/order_tier_defaults.xlsx'))
 
   stopifnot(all(names(t2) %in% names(t1))) 
-  # process if there are orders from schools in a 3rd spreadsheet, otherwise just process tier 1&2 orders
-  if(!missing(t3) && !is.null(t3)){
-    stopifnot(all(names(t3) %in% names(t1)))
-    orders = rbind(t1, t2, t3, fill = T)
-  } else {
-    orders = rbind(t1, t2, fill = T)
+  # add Tier 1 & 2
+  orders = rbind(t1, t2, fill = T)
+  
+  # add orders from schools in a 3rd spreadsheet if present
+  if(!missing(schools) && !is.null(schools)){
+  stopifnot(all(names(schools) %in% names(orders)))
+    orders = rbind(orders, schools, fill = T)
   }
-
+  
+  # add internal orders for cloth masks in a 4th spreadsheet if present
+  if(!missing(internal_cloth) && !is.null(internal_cloth)){
+    stopifnot(all(names(internal_cloth) %in% names(orders)))
+    orders = rbind(orders, internal_cloth, fill = T)
+  }
+  
   if(!nrow(orders) == nrow(unique(orders))){
     warning('Duplicate entries in the order sheets.')
     notes[[1]] <- 'Duplicate entries in the order sheets. This is usually fine/represents duplicate rows in the underlying request files.'
@@ -77,7 +87,7 @@ order_and_tiers = function(fold, date, t1, t2, t3, order_v, load_from_previous, 
   dump = unique(dump)
 
   # extract zip
-  # should clean up address more (trailing spaces)
+  # TODO: clean up address more (trailing spaces)
   dump[, zip:= str_extract(address, "(?<= )\\d{4,5}(?=\\n|$)")]
   dump = merge(dump, routes, all.x = T, by = 'zip')
 
@@ -164,11 +174,10 @@ order_and_tiers = function(fold, date, t1, t2, t3, order_v, load_from_previous, 
       warning(paste('IDs also from last week:', paste0(dupes, collapse = ', ')))
       notes[[3]] <- paste('IDs also from last week:', paste0(dupes, collapse = ', '))
     }
+    print('Order & Tier files complete!')
 
   }
 
   return(paste0('Tier File: ', file.path(fold, paste0('tiers_', cycle_mo, cycle_day, '_', order_v, '.xlsx')),
                 ' Warning 1: ', notes[[1]], ' Warning 2: ', notes[[2]], ' Warning 3: ', notes[[3]]))
-
-
 }
