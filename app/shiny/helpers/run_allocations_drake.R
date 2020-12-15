@@ -67,7 +67,7 @@ run_allocations_drake <- function(
   regions = c('north_seattle_shoreline','bellevue','sw_king_county','east_king_county','renton','south_seattle_downtown','se_king_county', 'vashon')
 
   #Inputs! file paths
-  template = file.path('./templates/template_order_87.xlsx')
+  template = file.path('./templates/template_order_1211.xlsx')
   tiering = file.path(fold, paste0('tiers_', cycle_mo, cycle_day, '_', ot_v, '.xlsx'))
   orders = file.path(fold, paste0('order_list_', cycle_mo, cycle_day, '_', ot_v, '.xlsx'))
   item_class = file.path(fold, "item_classifications.csv")
@@ -108,6 +108,7 @@ run_allocations_drake <- function(
   sum_cycle = file.path(output, paste0('sum_cycle_valid', suffix,'.csv'))
   mismatch_out = file.path(output, paste0('mismatch', suffix,'.csv'))
   oot_weights = file.path(output, paste0('weights', suffix,'.csv'))
+  oot_order_checklist = file.path(output, paste0('orderlist', suffix,'.csv'))
 
   #The plan
   plan <- drake_plan(
@@ -169,6 +170,9 @@ run_allocations_drake <- function(
     #by regional - TODO: add region to wide picklist from the tier sheet (currently generating as separate tab step)
     out_xl_region = target(save_region_picklist(pl_wide, !!template, file_out(a), r), transform = map(r = !!regions, a = !!out_excel_by_region, .id = r)),
 
+    #write out order checklist
+    out_order_checklist =  target(write.csv(save_order_checklist(pl_wide), file_out(!!oot_order_checklist), row.names = F)),
+    
     #write out weights
     out_weights = target(write.csv(wt, file_out(!!oot_weights), row.names = F)),
 
