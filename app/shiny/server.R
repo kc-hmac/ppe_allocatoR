@@ -107,8 +107,10 @@ server = function(input, output, session) {
     cases$Count = 0
     # for now set count to 2 if active investigation
     cases[Status =='Active', Count := 2]
+    # unpivot by license number
+    cases <- cases[, list(`License Number` = unlist(strsplit(`License Number`, ","))), by=c('DBID','Facility Name', 'Facility Type', 'Address', 'City', 'Status','Count')]
+    cases[, 'License Number':= gsub("[^0-9.-]", "", `License Number`)]
     write.csv(cases, row.names = F, file.path(cache$workdir, 'cases.csv'))
-
     cache$other_inputs_text <- 'Updated cases'
 
   })
