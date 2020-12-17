@@ -54,6 +54,8 @@ order_and_tiers = function(fold, date, t1, t2, schools, internal_cloth, order_v,
   # add internal orders for cloth masks in a 4th spreadsheet if present
   if(!missing(internal_cloth) && !is.null(internal_cloth)){
     stopifnot(all(names(internal_cloth) %in% names(orders)))
+    # TODO: update Item Requested in internal_cloth before adding to orders 
+    #       to facilitate new internal cloth mask item classification
     orders = rbind(orders, internal_cloth, fill = T)
   }
   
