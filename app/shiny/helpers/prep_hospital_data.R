@@ -18,7 +18,7 @@ prep_hospital_data = function(fold, ppe, covid){
   ppe_hosp = merge(ppe_hosp, items, all.x = F, by = 'Supply Type' )
 
   #Convert the on hand supply categories into days. Use the first day of the period to be conservative
-  sup = data.table(`On hand Supply (Days-Range)` = c("0", "15+", "7-14", "4-6", "1-3"), days = c(0,15,7,4,1)) #be conservative
+  sup = data.table(`On hand Supply (Days-Range)` = c("0", ">30", "15-30", "7-14", "4-6", "1-3"), days = c(0,30,15,7,4,1)) #be conservative
 
   ppe_hosp = merge(ppe_hosp, sup, by = 'On hand Supply (Days-Range)', all.x = T)
   stopifnot('Missing days' = all(!is.na(ppe_hosp[,days])))
