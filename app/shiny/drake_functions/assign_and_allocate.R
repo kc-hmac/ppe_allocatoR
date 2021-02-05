@@ -5,7 +5,7 @@ assign_and_allocate <- function(orders, inv, w, ltcf_categories, replacement_fil
   #what tiers are we working with?
   looptiers = sort(unique(orders[,tier]))
   message(paste('Assign/Allocating for tiers:', paste0(looptiers, collapse = ', ')))
-  
+
   #this will grow an object, which is naughty, but whatever
   holder = list()
 
@@ -46,7 +46,7 @@ assign_and_allocate <- function(orders, inv, w, ltcf_categories, replacement_fil
         
         grps = sort(unique(replacement[, grouping]))
         for(id in grps){
-          
+        
           rrr = replacer(replace = replacement[grouping == id], alloc, inv, names(valid), w, donotallocate)
           
           alloc <- rrr[[1]]

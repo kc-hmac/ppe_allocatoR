@@ -8,7 +8,7 @@ assign_ppe <- function(theitem, ppe, w, inv_each){
   #stopifnot(nrow(r_ppe)>=1)
   
   dist_me = inv_each[itemz %in% theitem]
-  
+
   if(!all(r_ppe[, type] %in% w[, type])){
     stop(paste('Missing facility types in weights:', paste(setdiff(r_ppe[, type] , w[, type]), collapse = ', ')))
   }
@@ -33,7 +33,7 @@ assign_ppe <- function(theitem, ppe, w, inv_each){
     
     #how many products are left to distribute?
     remain = dist_me$available - r_ppe[, sum(assigned)]
-    
+    if(length(remain)==0) remain = 0
     if(remain == 0 || iter > 10 || all(r_ppe[fill_me == 1,  percent_filled == 1])){
       keep_going = FALSE
     }else{
@@ -72,6 +72,7 @@ assign_ppe <- function(theitem, ppe, w, inv_each){
   }
   
   remain = dist_me$available - r_ppe[, sum(assigned)]
+  if(length(remain)==0) remain = 0
   
   while(remain>0 && !all(r_ppe[fill_me == 1, percent_filled == 1])){
     r_ppe[sample(r_ppe[percent_filled <1 & fill_me == 1, .I],1), assigned := assigned + 1]
@@ -83,6 +84,7 @@ assign_ppe <- function(theitem, ppe, w, inv_each){
     stop('something broke')
   }
   remain = dist_me$available - r_ppe[, sum(assigned)]
+  if(length(remain)==0) remain = 0
   
   print(paste(remain, theitem, 'remaining after assignment'))
   
