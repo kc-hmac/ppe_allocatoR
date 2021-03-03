@@ -23,7 +23,7 @@ save_picklist= function(pl, template, outpath, tiers =unique(pl$tier)){
       
       #fill in the things
       writeData(wb, wb_name, paste0('Tier: ', this_pl[, tier] ), xy = c(1,1))
-      writeData(wb, wb_name, paste0('Order Time: ', as.Date(Sys.time()) ), xy = c(1,2))
+      writeData(wb, wb_name, paste0('Order Time: ', format(Sys.Date(), "%m/%d/%y") ), xy = c(1,2))
       writeData(wb, wb_name, 'Issued to:', xy = c(1,3))
       writeData(wb, wb_name, this_pl[, agency], xy = c(2,3))
       writeData(wb, wb_name, 'Address:', xy = c(1,4))
@@ -36,6 +36,7 @@ save_picklist= function(pl, template, outpath, tiers =unique(pl$tier)){
       writeData(wb, wb_name, this_pl[, Phone], xy = c(2,6))
       writeData(wb, wb_name, 'Email: ', xy = c(1,7))
       writeData(wb, wb_name, this_pl[, email], xy = c(2,7))
+      writeData(wb, wb_name, 'Work Order / Usage: ', xy = c(1,9))
       
       #write the matrix of items
       agency = this_pl$agency
@@ -49,7 +50,7 @@ save_picklist= function(pl, template, outpath, tiers =unique(pl$tier)){
       
       this_pl = this_pl[, .(Line = .I, Item =id, Description, Quantity = value, `Qty Picked` = "")]
       
-      writeDataTable(wb, wb_name, this_pl, startCol = 1, startRow = 16, colNames = TRUE, tableStyle = 'TableStyleMedium18', withFilter = F,
+      writeDataTable(wb, wb_name, this_pl, startCol = 1, startRow = 17, colNames = TRUE, tableStyle = 'TableStyleMedium18', withFilter = F,
                      bandedRows = TRUE)
       
       
@@ -57,7 +58,7 @@ save_picklist= function(pl, template, outpath, tiers =unique(pl$tier)){
       sss = createStyle(border = 'TopBottom')
       # rrr = 13:nrow(this_pl)
       # cols = 1:5
-      addStyle(wb, wb_name,rows = 15:(15+nrow(this_pl)), stack = TRUE,gridExpand = T, style = sss, cols = 1:5)
+      addStyle(wb, wb_name,rows = 16:(16+nrow(this_pl)), stack = TRUE,gridExpand = T, style = sss, cols = 1:5)
       
       
     }
