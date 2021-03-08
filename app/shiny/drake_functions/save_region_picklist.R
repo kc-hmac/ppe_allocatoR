@@ -48,7 +48,7 @@ save_region_picklist= function(pl, template, outpath, regions =unique(pl$Region)
       this_pl[, Description := trimws(substr(variable, regexpr(':', variable, fixed = T)+1, nchar(variable)))]
       this_pl = this_pl[!is.na(value)]
       
-      setorder(this_pl, Description)
+      setorder(this_pl, Description) #alphabetize orders by item description
       #this_pl = this_pl[order(Description)]
       this_pl = this_pl[, .(Line = .I, Item =id, Description, Quantity = value, `Qty Picked` = "")]
       
