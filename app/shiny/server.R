@@ -102,8 +102,8 @@ server = function(input, output, session) {
     # when count exist..
     # cases = cases[, .(dbid, licensenumber, facility_name,facility_type, address, city, status, cases_last_2_weeks)]
     # setnames(cases, c('DBID', 'License Number', 'Facility Name', 'Facility Type', 'Address', 'City', 'Status', 'Count'))
-    cases = cases[, .(dbid, licensenumber, facility_name,facility_type, address, city, status)]
-    setnames(cases, c('DBID', 'License Number', 'Facility Name', 'Facility Type', 'Address', 'City', 'Status'))
+    cases = cases[, .(licensenumber, facility_name,facility_type, address, city, status)]
+    setnames(cases, c('License Number', 'Facility Name', 'Facility Type', 'Address', 'City', 'Status'))
     cases$Count = 0
     # for now set count to 2 if active investigation
     cases[Status =='Active', Count := 2]

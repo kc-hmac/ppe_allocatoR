@@ -53,7 +53,7 @@ qa_ltcfs = function(fold,
 
   qa_file = ltcfs %>%
     mutate(cases_address = address.y, orders_address = address.x) %>%
-    select(agency_or_facility_name,wa_num,lnum,dbid,facility_type,status,last_onset,notification_date,agency,facility_name,orders_address,cases_address) %>%
+    select(agency_or_facility_name,wa_num,lnum,facility_type,status,last_onset,notification_date,agency,facility_name,orders_address,cases_address) %>%
     arrange(agency_or_facility_name)
 
   #print full
