@@ -65,7 +65,7 @@ run_allocations_drake <- function(
 
   #routes by region
   #regions = c('north_seattle_shoreline','bellevue','sw_king_county','east_king_county','renton','south_seattle_downtown','se_king_county', 'vashon')
-  regions = c('east_king_county','west_king_county','south_king_county')
+  regions = c('east_king_county','west_king_county','south_king_county', 'renton')
 
   #Inputs! file paths
   template = file.path('./templates/template_order_1211.xlsx')
