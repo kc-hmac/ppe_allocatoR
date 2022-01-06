@@ -64,9 +64,17 @@ run_allocations_drake <- function(
   ltcf_categories = c('snf + alf', 'afh', 'supported living', 'alf', 'snf', 'ltcf')
 
   #routes by region
-  regions = c('north_seattle_shoreline','bellevue','sw_king_county','east_king_county','renton','south_seattle_downtown','se_king_county', 'vashon')
-  #regions = c('east_king_county','west_king_county','south_king_county')
-
+  # 7 regions
+  #regions = c('north_seattle_shoreline','bellevue','sw_king_county','east_king_county','renton','south_seattle_downtown','se_king_county', 'vashon')
+  # 5 regions
+  #regions = c('east_king_county', 'ne_king_county', 'nw_king_county','se_king_county', 'sw_king_county', 'vashon')
+  # 3 regions
+  regions = c('east_king_county','west_king_county','south_king_county', 'vashon')
+  # 10 regions
+  #regions = c('north_seattle_shoreline','bellevue','sw_king_county','east_king_county','renton','south_seattle_downtown','se_king_county', 'vashon', 'ne_king_county', 'south_seattle_kent')
+  # 11 regions
+  #regions = c('north_seattle_shoreline','bellevue','sw_king_county','east_king_county','renton','south_seattle_downtown','se_king_county', 'vashon', 'ne_king_county', 'south_seattle_kent', 'west_king_county')
+  
   #Inputs! file paths
   template = file.path('./templates/template_order_1211.xlsx')
   tiering = file.path(fold, paste0('tiers_', cycle_mo, cycle_day, '_', ot_v, '.xlsx'))
