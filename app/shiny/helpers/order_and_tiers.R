@@ -9,12 +9,13 @@
 #' @param load_from_previous logical. Determines whether previous tiering information (from the same date cycle) should be carried forward to a new version of the tiers and orders
 #' @param prev_v numeric/character- old version name
 #' @param previous_week file.path- Path to the location of the previous week's "asum_all" file for comparing old vs. new tracking numbers to ensure no duplication
+#' @param delivery_region_number numeric/character- Anticipate grouping of deliveries for the warehouse team.
 #' @param dump file.path- Path to the location of a data dump from webeoc. This sheet brings the contact information.
 #' @param add_fp file.path- Optional. Path to the location of an excel/csv sheet specifying additional orders
 #' @details This function creates blank/new versions of the order and tiers files. Unless provided a new order_v, this function will overwrite existing work.
 #' @return A character string of the file path to the saved tiers file.
 order_and_tiers = function(fold, date, t1, t2, schools, internal_cloth, order_v, load_from_previous, prev_v,
-                           previous_week, dump, add_fp){
+                           previous_week, delivery_region_number, dump, add_fp){
 
   notes = list('None', 'None','None')
 
@@ -35,8 +36,16 @@ order_and_tiers = function(fold, date, t1, t2, schools, internal_cloth, order_v,
   previous_week = load_spreadsheet(previous_week)
   if(!missing(add_fp) && !is.null(add_fp)) add = load_spreadsheet(add_fp)
 
-  #delivery routes by zip
-  routes = load_spreadsheet(file.path('./templates/routes.xlsx'))
+  # initial delivery routes by zip, region value can be overwritten in tiers file through QA and warehouse review process
+  if(!missing(delivery_region_number) && delivery_region_number %in% c('3','5','6','7','9','10')){
+    routes_file = paste0('./templates/routes_',delivery_region_number,'regions.xlsx')
+  }
+  else{
+    routes_file = './templates/routes.xlsx'
+    warning(paste0('Region ',delivery_region_number,' file does not exist. Using routes.xlsx file, which contains 3 routes.'))
+  }
+  
+  routes = load_spreadsheet(file.path(routes_file))
   
   #default tier and type
   tier_type_defaults = load_spreadsheet(file.path('./templates/order_tier_defaults.xlsx'))

@@ -36,11 +36,19 @@ server = function(input, output, session) {
   output$t_o <- renderText({
     req(input$ot_run, cache$workdir, input$cycle_date)
     isolate({
-      order_and_tiers(fold = cache$workdir, date = input$cycle_date, t1 = input$ot_t1$datapath,
-                      t2 = input$ot_t2$datapath, schools = input$ot_schools$datapath, internal_cloth = input$ot_internal_cloth$datapath, order_v = input$ot_ver, 
+      order_and_tiers(fold = cache$workdir, 
+                      date = input$cycle_date, 
+                      t1 = input$ot_t1$datapath,
+                      t2 = input$ot_t2$datapath, 
+                      schools = input$ot_schools$datapath, 
+                      internal_cloth = input$ot_internal_cloth$datapath, 
+                      order_v = input$ot_ver,
                       load_from_previous = (!is.null(input$ot_prev_ver) && !input$ot_prev_ver == ""),
-                      prev_v = input$ot_prev_ver, previous_week = input$ot_prev_sum$datapath,
-                      dump = input$ot_dump$datapath, add_fp = input$ot_add$datapath)
+                      prev_v = input$ot_prev_ver, 
+                      previous_week = input$ot_prev_sum$datapath,
+                      delivery_region_number = input$ot_delivery_regions,
+                      dump = input$ot_dump$datapath, 
+                      add_fp = input$ot_add$datapath)
     })
   })
 
@@ -175,6 +183,7 @@ server = function(input, output, session) {
                             inventory_version = input$inv_v,
                             ordersandtiers_version = input$ot_v,
                             runtiers = input$runtiers,
+                            regions_override = input$ot_regions_names,
                             sized_items = input$sized,
                             ignore_me = input$ignore_me,
                             standardize_chinook = TRUE,

@@ -5,6 +5,7 @@
 #' @param inventory_version numeric/character- version of the inventory to use for this run
 #' @param ordersandtiers_version numeric/character- version of the orders and tiers files to use
 #' @param runtiers character as a `;` separated list- Which tiers (as found in the tiers file column current.tier) should be run? Note, tiers are run from lowest to highest in a dependent-iterative fashion.
+#' @param regions_override character as a `;` separated list- regions(s), enables use of "pickup" as a region in tiering step
 #' @param sized_items character as a `;` separated list- item_type(s) that should be allocated by size
 #' @param ignore_me character as a `;` separated list- item_type(s) that should not be allocated at all
 #' @param standardize_chinook logical- should all addresses that are likely going to chinook to be standardized (e.g. sent to the first floor)
@@ -17,6 +18,7 @@ run_allocations_drake <- function(
                       inventory_version,
                       ordersandtiers_version,
                       runtiers,
+                      regions_override = "",
                       sized_items,
                       ignore_me = "",
                       standardize_chinook = T,
@@ -29,6 +31,7 @@ run_allocations_drake <- function(
 
   #fix some inputs
   runtiers = trimws(unlist(strsplit(runtiers, ';', fixed = TRUE)))
+  regions_override = trimws(unlist(strsplit(regions_override, ';', fixed = TRUE)))
   sized_items = trimws(unlist(strsplit(sized_items, ';', fixed = TRUE)))
   ignore_me = trimws(unlist(strsplit(ignore_me, ';', fixed = TRUE)))
   n95except = trimws(unlist(strsplit(n95except, ';', fixed = TRUE)))
@@ -63,13 +66,22 @@ run_allocations_drake <- function(
   #governing variables
   ltcf_categories = c('snf + alf', 'afh', 'supported living', 'alf', 'snf', 'ltcf')
 
-  #routes by region
+  #override routes by region
+  if(length(regions_override)>1){
+    # testing: east_king_county; west_king_county; south_king_county; vashon; pickup
+    regions = regions_override
+  }
+  else{
+    regions = c('east_king_county','west_king_county','south_king_county', 'vashon')
+  }
+  # or can hard-code
+  # regions = c('east_king_county','west_king_county','south_king_county', 'vashon','pickup')
   # 7 regions
   #regions = c('north_seattle_shoreline','bellevue','sw_king_county','east_king_county','renton','south_seattle_downtown','se_king_county', 'vashon')
   # 5 regions
-  #regions = c('east_king_county', 'ne_king_county', 'nw_king_county','se_king_county', 'sw_king_county', 'vashon')
-  # 3 regions
-  regions = c('east_king_county','west_king_county','south_king_county', 'vashon')
+  # regions = c('east_king_county', 'ne_king_county', 'nw_king_county','se_king_county', 'sw_king_county', 'vashon','pickup')
+  # 3 regions 
+  # regions = c('east_king_county','west_king_county','south_king_county', 'vashon')
   # 10 regions
   #regions = c('north_seattle_shoreline','bellevue','sw_king_county','east_king_county','renton','south_seattle_downtown','se_king_county', 'vashon', 'ne_king_county', 'south_seattle_kent')
   # 11 regions
@@ -176,7 +188,7 @@ run_allocations_drake <- function(
     #write out wide picklist
     out_wide = target(write.csv(pl_wide, file_out(!!oot_wide), row.names = F)),
 
-    #by regional - TODO: add region to wide picklist from the tier sheet (currently generating as separate tab step)
+    #by regional, regions are populated by order_and_tiers from the tier worksheet and may be tweaked there as Michael reviews delivery map
     out_xl_region = target(save_region_picklist(pl_wide, !!template, file_out(a), r), transform = map(r = !!regions, a = !!out_excel_by_region, .id = r)),
 
     #write out order checklist

@@ -4,6 +4,7 @@ print('run ui')
 source('./startup.R')
 input_width = '400px'
 input_width_wide = '640px'
+input_width_widest = '800px'
 header <- dashboardHeader(
   disable = T
 )
@@ -52,6 +53,7 @@ body <- dashboardBody(
             fileInput('ot_internal_cloth', "Internal aggregated requests (cloth masks)", width = input_width, placeholder = 'Internal Cloth Masks - Weekly PPE 20201204.xlsx'),
             textInput('ot_ver', 'Order & Tiers version', 1),
             textInput('ot_prev_ver', 'Order & Tiers previous version (optional)', NULL),
+            textInput('ot_delivery_regions', label = 'Number of regions for delivery (3, 5, 6, 7, 9 or 10)', value = defaults[variable == 'delivery_regions', value]),
             fileInput('ot_prev_sum', 'Summary of the previous week (asum)', width = input_width, placeholder = "asum_all_724_v2.csv"),
             fileInput('ot_dump', 'WebEOC data dump', width = input_width, placeholder = 'export.xlsx'),
             fileInput('ot_add', 'Additional Orders (optional)', width = input_width, placeholder = 'order_additions.xlsx'),
@@ -107,11 +109,12 @@ body <- dashboardBody(
             textInput('inv_v', 'Inventory Version',1),
             textInput('ot_v', 'Orders & Tiers Version', 1),
             textInput('runtiers', 'Tiers to run (semi-colon seperated list)', value = defaults[variable == 'runtiers', value]),
+            textInput('ot_regions_names', label = 'Region delivery names', width = input_width_widest, value = defaults[variable == 'delivery_region_names', value]),
             textInput('sized', 'Item types to distribute by size (semi-colon seperated list)',
-                      value = defaults[variable == 'sized_items', value], width = input_width_wide),
+                      value = defaults[variable == 'sized_items', value], width = input_width_widest),
             textInput('ignore_me', 'Item types to not distribute (semi-colon seperated list)', value = defaults[variable == 'do_not_distribute', value]),
             textInput('n95except', 'Allowed N95 exceptions (semi-colon seperated list)',
-                      value = defaults[variable == 'N95_exceptions', value], width = input_width_wide),
+                      value = defaults[variable == 'N95_exceptions', value], width = input_width_widest),
             numericInput('holdback_frac', 'Inventory Distribute %', 95, 0, 100),
             textInput('hosp_thresh', 'Hospital Days of Supply Threshold', Inf),
             textInput('cache_folder', 'Directory to drake cache', value = defaults[variable == 'cache_folder', value]),
