@@ -1,9 +1,9 @@
 variable,value
-base_output,C:/Users/alibrown/Documents/ppe
-cache_folder,C:/Users/alibrown/Documents/ppe_runs
+base_output,C:/Users/ahu.PH/Documents/ppe
+cache_folder,C:/Users/ahu.PH/Documents/ppe_runs
 runtiers,0; 1; 2; 3; 1.5
 sized_items,"gowns; non-latex gloves; scrub pants; scrub pants; latex gloves; coveralls; vinyl gloves; gowns, level 1; gowns, level 2; gowns, level 3; gowns, level 4"
 do_not_distribute,
 N95_exceptions,"meo; health clinic, community; congregate, jail; dental clinic; dental clinic, community; law enforcement; ltcf; behavioral health clinic; home care; home health; health clinic; school; child care"
-delivery_regions,3
-delivery_region_names, "east_king_county; west_king_county; south_king_county; vashon"
+delivery_regions,5
+delivery_region_names, "east_king_county; ne_king_county; nw_king_county; se_king_county; sw_king_county; vashon"

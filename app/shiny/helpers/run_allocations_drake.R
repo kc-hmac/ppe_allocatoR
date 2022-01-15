@@ -68,11 +68,10 @@ run_allocations_drake <- function(
 
   #override routes by region
   if(length(regions_override)>1){
-    # testing: east_king_county; west_king_county; south_king_county; vashon; pickup
     regions = regions_override
   }
   else{
-    regions = c('east_king_county','west_king_county','south_king_county', 'vashon')
+    regions = regions = c('east_king_county', 'ne_king_county', 'nw_king_county','se_king_county', 'sw_king_county', 'vashon')
   }
   # or can hard-code
   # regions = c('east_king_county','west_king_county','south_king_county', 'vashon','pickup')
